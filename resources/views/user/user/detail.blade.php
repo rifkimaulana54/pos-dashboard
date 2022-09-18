@@ -71,7 +71,7 @@
                                         @endif
                                     </p>
                                 </div>
-                                <div class="form-group mb-3">
+                                {{-- <div class="form-group mb-3">
                                     <label>{{__('Tanggal Lahir')}}</label>
                                     <p>
                                         @if (!empty($metas['tanggal_lahir']))
@@ -86,7 +86,7 @@
                                             {{ $metas['address'] }}
                                         @endif
                                     </p>
-                                </div>
+                                </div> --}}
                                 {{-- <div class="form-group mb-3">
                                     <label>{{__('Company')}}</label>
                                     <p>

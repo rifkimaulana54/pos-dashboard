@@ -316,7 +316,21 @@ return [
         //         ],
         //     ],
         // ],
-        
+        [
+            'header' => 'PRODUCT MANAGEMENT',
+        ],
+        [
+            'text'    => 'Category',
+            'icon'    => 'fas fa-fw fa-users',
+            'active'  => ['categories'],
+            'url'     => 'categories',
+        ],
+        [
+            'text'    => 'Product',
+            'icon'    => 'fas fa-fw fa-users',
+            'active'  => ['Product'],
+            'url'     => 'products',
+        ],
         [
             'header' => 'USER MANAGEMENT',
             // 'can'   => [

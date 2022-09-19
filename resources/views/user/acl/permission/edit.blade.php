@@ -145,7 +145,7 @@
     <script type="text/javascript">
         var base_url = {!! json_encode(url('/')) !!};
     </script>
-    <script src="{{ asset('js/renvee.js') }}"></script>
+    <script src="{{ asset('js/pos.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vendor/multi-select/js/jquery.multi-select.js') }}"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.quicksearch/2.4.0/jquery.quicksearch.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.js" type="text/javascript"></script>

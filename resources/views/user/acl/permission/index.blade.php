@@ -27,7 +27,7 @@
                     <!-- /.card-header -->
                         <div class="card-body">
                             @if (GlobalHelper::userRole($request,'superadmin'))
-                                <a class="btn btn-primary btn-sx" href="{{ url('users/acl/permissions/create') }}" style="margin-bottom: 10px">New Permission</a>
+                                <a class="btn btn-primary btn-sx" href="{{ url('users/acl/permissions/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Permission')}}</a>
                             @endif
                             @if(Session::has('flash_error'))
                                 <div class="alert alert-danger text-center">{!! session('flash_error') !!}</div>
@@ -77,7 +77,7 @@
     <script type="text/javascript">
         var base_url = {!! json_encode(url('/')) !!};
     </script>
-    <script src="{{ asset('js/renvee.js') }}"></script>
+    <script src="{{ asset('js/pos.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.4/daterangepicker.min.js" type="text/javascript"></script>
     <script src="{{ asset('js/user.js') }}"></script>

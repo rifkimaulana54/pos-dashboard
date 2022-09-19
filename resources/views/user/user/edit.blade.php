@@ -251,7 +251,7 @@
     <script type="text/javascript">
         var base_url = {!! json_encode(url('/')) !!};
     </script>
-    <script src="{{ asset('js/renvee.js') }}"></script>
+    <script src="{{ asset('js/pos.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.3/jquery.inputmask.min.js"></script>
     <script type="text/javascript" src="{{ asset('vendor/multi-select/js/jquery.multi-select.js') }}"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.quicksearch/2.4.0/jquery.quicksearch.min.js"></script>

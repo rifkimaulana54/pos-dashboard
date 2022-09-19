@@ -320,14 +320,14 @@ return [
             'header' => 'PRODUCT MANAGEMENT',
         ],
         [
-            'text'    => 'Category',
-            'icon'    => 'fas fa-fw fa-users',
+            'text'    => 'Product Category',
+            'icon'    => 'fas fa-fw fa-tags',
             'active'  => ['categories'],
             'url'     => 'categories',
         ],
         [
             'text'    => 'Product',
-            'icon'    => 'fas fa-fw fa-users',
+            'icon'    => 'fas fa-fw fa-archive',
             'active'  => ['Product'],
             'url'     => 'products',
         ],
@@ -337,6 +337,23 @@ return [
             //     'read-cms-user',
             //     'read-cms-acl-role',
             // ]
+        ],
+        [
+            'text'    => 'Access Control List',
+            'icon'    => 'fas fa-fw fa-fingerprint',
+            'active' => ['users/acl*'],
+            'submenu' => [
+                [
+                    'text' => 'Role',
+                    'url'  => 'users/acl/roles',
+                    'active' => ['users/acl/roles', 'users/acl/roles/create', 'regex:@^users/acl/roles/[0-9]+$@'],
+                ],
+                [
+                    'text' => 'Permission',
+                    'url'  => 'users/acl/permissions',
+                    'active' => ['users/acl/permissions', 'users/acl/permissions/create', 'regex:@^users/acl/permissions/[0-9]+$@'],
+                ],
+            ],
         ],
         [
             'text'    => 'Users',
@@ -355,23 +372,6 @@ return [
             //         'active' => ['users/create', 'users/create', 'regex:@^users/create[0-9]+$@'],
             //     ],
             // ],
-        ],
-        [
-            'text'    => 'Access Control List',
-            'icon'    => 'fas fa-fw fa-fingerprint',
-            'active' => ['users/acl*'],
-            'submenu' => [
-                [
-                    'text' => 'Role',
-                    'url'  => 'users/acl/roles',
-                    'active' => ['users/acl/roles', 'users/acl/roles/create', 'regex:@^users/acl/roles/[0-9]+$@'],
-                ],
-                [
-                    'text' => 'Permission',
-                    'url'  => 'users/acl/permissions',
-                    'active' => ['users/acl/permissions', 'users/acl/permissions/create', 'regex:@^users/acl/permissions/[0-9]+$@'],
-                ],
-            ],
         ],
     ],
 

@@ -39,3 +39,8 @@ Route::resource('/users/acl/permissions', App\Http\Controllers\User\ACL\Permissi
 Route::post('/users/acl/roles/{id}/restore', [App\Http\Controllers\User\ACL\RoleController::class, 'restore']);
 Route::post('/users/acl/roles/getRoleList', [App\Http\Controllers\User\ACL\RoleController::class, 'getRoleList']);
 Route::resource('/users/acl/roles', App\Http\Controllers\User\ACL\RoleController::class);
+
+//category
+Route::post('/categories/{id}/restore', [App\Http\Controllers\Product\CategoryController::class, 'restore']);
+Route::post('/categories/getCategoryList', [App\Http\Controllers\Product\CategoryController::class, 'getCategoryList']);
+Route::resource('/categories', App\Http\Controllers\Product\CategoryController::class);

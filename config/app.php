@@ -54,9 +54,11 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     
-    'api_asset_url' => env('API_URL', 'https://api-umkm.000webhostapp.com/') . 'asset/',
+    'api_asset_url' => env('API_URL', 'http://localhost:7001/') . 'asset/',
 
-    'api_user_url' => env('API_URL', 'https://api-umkm.000webhostapp.com/') . 'user/',
+    'api_user_url' => env('API_URL', 'http://localhost:7001/') . 'user/',
+
+    'api_product_url' => env('API_URL', 'http://localhost:7001/') . 'product/',
 
     'force_https' => env('REDIRECT_HTTPS', false),
 
@@ -227,6 +229,7 @@ return [
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,
+        'ProductApi' => App\Helpers\ProductApiHelper::class,
         'Queue' => Illuminate\Support\Facades\Queue::class,
         'RateLimiter' => Illuminate\Support\Facades\RateLimiter::class,
         'Redirect' => Illuminate\Support\Facades\Redirect::class,

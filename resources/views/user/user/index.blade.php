@@ -31,7 +31,7 @@
                                 <div class="d-flex justify-content-between w-100" style="margin-bottom: 10px;">
                                     @if (GlobalHelper::userCan($request,'create-users'))
                                         <div class="d-flex">
-                                            <a href="{{ url('users/create') }}" class="btn btn-primary float-right"> {{__('New User')}}</a>
+                                            <a href="{{ url('users/create') }}" class="btn btn-primary float-right"><i class="fas fa-fw fa-plus"></i> {{__('New User')}}</a>
                                         </div>
                                     @endif
                                 </div>
@@ -88,7 +88,7 @@
     <script type="text/javascript">
         var base_url = {!! json_encode(url('/')) !!};
     </script>
-    <script src="{{ asset('js/renvee.js') }}"></script>
+    <script src="{{ asset('js/pos.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.4/daterangepicker.min.js" type="text/javascript"></script>
     <script src="{{ asset('js/user.js') }}"></script>

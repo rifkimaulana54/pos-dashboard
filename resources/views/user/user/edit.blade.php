@@ -32,7 +32,7 @@
 
 @section('content')
 <section class="content">
-    <div class="container-fluid">
+    <div class="container">
         <!-- Small boxes (Stat box) -->
         <div class="row justify-content-center">
             <div class="col-12">
@@ -154,6 +154,20 @@
                                         {{__('Mohon isi role')}}
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">{{__('Store')}} *</label>
+                                    <select class="form-control select2" required name="store_id" style="width: 100%">
+                                        <option value="">--- {{__('Select Store')}} ---</option>
+                                        @if (!empty($stores))
+                                            @foreach ($stores as $store)
+                                                <option value="{{ $store->id }}" @if (!empty($user->store) && $store->id == $user->store_id) selected @endif>{{ $store->store_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        {{__('Mohon isi store')}}
+                                    </div>
+                                </div>
                                 {{-- @if (!empty($companies))
                                     <div class="form-group">
                                         <label for="">{{__('Company')}} *</label>
@@ -190,27 +204,26 @@
                                 </div>
                             </div>
                             <hr/>
-                            <!--<div class="col-sm-12 mt-3">
+                            {{-- <div class="col-sm-12 mt-3">
                                 <div class="form-group">
-                                    <h6>Store</h6>
+                                    <h6><b>Store *</b></h6>
                                     <div class="form-group">
-                                        {{-- <label>Product Type *</label> --}}
                                         <div class="sepH_a">
                                             <a href="#" class="btn btn-link btn-xs str_select_all">Select All</a>
                                             <a href="#" class="btn btn-link btn-xs str_deselect_all">Deselect All</a>
                                         </div>
                                         <div>
-                                            {{-- <select multiple="multiple" id="store" name="warehouses[]" @if(!empty($shiftActive) && $shiftActive) disabled @endif class="multi-select multi-select-store store" data-label="Store">
-                                            @if (!empty($warehouses['Store Warehouse']))
-                                                @foreach ($warehouses['Store Warehouse'] as $store)
-                                                    <option value="{{ $store->id }}" @if(!empty($warehouses_selected) && in_array($store->id, $warehouses_selected)) selected @endif>{{ $store->warehouse_name }}</option>
+                                            <select multiple="multiple" id="store" name="stores[]" class="multi-select multi-select-store store" data-label="Store" required>
+                                            @if (!empty($stores))
+                                                @foreach ($stores as $store)
+                                                    <option value="{{ $store->id }}" @if(!empty($stores_selected) && in_array($store->id, $stores_selected)) selected @endif>{{ $store->store_name }}</option>
                                                 @endforeach
-                                            @endif --}}
+                                            @endif
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-                            </div>-->
+                            </div> --}}
                             
                             @if (!empty($user))
                                 <div class="col-sm-6">

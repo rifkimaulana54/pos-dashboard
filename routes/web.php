@@ -22,6 +22,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // heartbeat
 Route::get('/heartbeat', [App\Http\Controllers\HomeController::class, 'heartbeat']);
 
+// assets
+    Route::post('/upload-assets', [App\Http\Controllers\Controller::class, 'uploadAsset']);
+    
 //user
 // Route::get('/users/upload', [App\Http\Controllers\User\UserController::class, 'upload']);
 // Route::get('/users/upload/show', [App\Http\Controllers\User\UserController::class, 'show_upload']);
@@ -40,7 +43,22 @@ Route::post('/users/acl/roles/{id}/restore', [App\Http\Controllers\User\ACL\Role
 Route::post('/users/acl/roles/getRoleList', [App\Http\Controllers\User\ACL\RoleController::class, 'getRoleList']);
 Route::resource('/users/acl/roles', App\Http\Controllers\User\ACL\RoleController::class);
 
+//Setting/Company
+Route::post('/companies/{id}/restore', [App\Http\Controllers\Setting\CompanyController::class, 'restore']);
+Route::post('/companies/getCompanyList', [App\Http\Controllers\Setting\CompanyController::class, 'getCompanyList']);
+Route::resource('/companies', App\Http\Controllers\Setting\CompanyController::class);
+
+//Setting/Store
+Route::post('/stores/{id}/restore', [App\Http\Controllers\Setting\StoreController::class, 'restore']);
+Route::post('/stores/getStoreList', [App\Http\Controllers\Setting\StoreController::class, 'getStoreList']);
+Route::resource('/stores', App\Http\Controllers\Setting\StoreController::class);
+
 //category
 Route::post('/categories/{id}/restore', [App\Http\Controllers\Product\CategoryController::class, 'restore']);
 Route::post('/categories/getCategoryList', [App\Http\Controllers\Product\CategoryController::class, 'getCategoryList']);
 Route::resource('/categories', App\Http\Controllers\Product\CategoryController::class);
+
+//product
+Route::post('/products/{id}/restore', [App\Http\Controllers\Product\ProductController::class, 'restore']);
+Route::post('/products/getProductList', [App\Http\Controllers\Product\ProductController::class, 'getProductList']);
+Route::resource('/products', App\Http\Controllers\Product\ProductController::class);

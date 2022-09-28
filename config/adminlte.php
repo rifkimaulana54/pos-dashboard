@@ -85,7 +85,7 @@ return [
 
     'layout_topnav' => null,
     'layout_boxed' => null,
-    'layout_fixed_sidebar' => null,
+    'layout_fixed_sidebar' => true,
     'layout_fixed_navbar' => null,
     'layout_fixed_footer' => null,
     'layout_dark_mode' => null,
@@ -373,6 +373,21 @@ return [
             //     ],
             // ],
         ],
+        [
+            'header' => 'SETTING'
+        ],
+        [
+            'text'    => 'Company',
+            'icon'    => 'fas fa-fw fa-building',
+            'active'  => ['companies'],
+            'url'     => 'companies',
+        ],
+        [
+            'text'    => 'Store',
+            'icon'    => 'fas fa-fw fa-store',
+            'active'  => ['stores'],
+            'url'     => 'stores',
+        ]
     ],
 
     /*

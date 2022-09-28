@@ -62,9 +62,9 @@ $(document).ready(function() {
         });  
     }
 
-    if($('.multi-select-company').length)
+    if($('.multi-select-store').length)
     {
-        $('.multi-select-company').multiSelect({
+        $('.multi-select-store').multiSelect({
             selectableOptgroup: true,
             selectableHeader: '<div class="custom-header-search"><input type="text" class="search-input input-sm form-control" autocomplete="off" placeholder="Available Action..."></div>',
             selectionHeader: '<div class="custom-header-search"><input type="text" class="search-input input-sm form-control" autocomplete="off" placeholder="Selected Action..."></div>',
@@ -101,14 +101,14 @@ $(document).ready(function() {
             }
         }); 
 
-        $(document).on('click', '#act_select_all', function(e) {
+        $(document).on('click', '#str_select_all', function(e) {
             e.preventDefault();
-            $('.multi-select-company').multiSelect('select_all');
+            $('.multi-select-store').multiSelect('select_all');
             return false;
         });
-        $(document).on('click', '#act_deselect_all', function(e) {
+        $(document).on('click', '#str_deselect_all', function(e) {
             e.preventDefault();
-            $('.multi-select-company').multiSelect('deselect_all');
+            $('.multi-select-store').multiSelect('deselect_all');
             return false;
         });
     }

@@ -93,7 +93,7 @@
                                         <label for="name">{{__('Category Name')}} *</label>
                                         <input type="text" class="form-control" required id="name" name="name" @php if(!empty(old('name'))) echo 'value="'.old('name').'"'; elseif(!empty($category->category_display_name)) echo 'value="'.$category->category_display_name.'"'; else echo 'autocomplete="off"'; @endphp placeholder="Masukan Nama Category">
                                         <div class="invalid-feedback">
-                                            {{__('Mohon isi role kategori')}}
+                                            {{__('Mohon isi nama kategori')}}
                                         </div>
                                     </div>
                                 </div>
@@ -106,27 +106,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            @if (!empty($companies))
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label for="company">Company *</label>
-                                            <div class="sepH_a">
-                                                <a href="#" class="btn btn-link btn-xs" id="act_select_all">Select All</a>
-                                                <a href="#" class="btn btn-link btn-xs" id="act_deselect_all">Deselect All</a>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <select multiple="multiple" id="company" name="company_id[]" class="multi-select multi-select-company" data-label="Company" required>
-                                                    @foreach ($companies as $company)
-                                                        <option value="{!! ucwords($company->company_name) !!}" >{!! ucwords($company->company_name) !!}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+
                             @if(!empty($category))
                                 <label for="status">{{__('Status')}}</label>
                                 <div class="col-sm-6">
@@ -137,7 +117,7 @@
                         <!-- /.card-body -->
                     
                         <div class="card-footer">
-                            <a href="{{url('users/acl/roles')}}" class="btn btn-default btn-sx">{{__('Cancel')}}</a>
+                            <a href="{{url('categories')}}" class="btn btn-default btn-sx">{{__('Cancel')}}</a>
                             <button type="submit" class="btn btn-primary btn-sx btnSubmit">{{__('Submit')}}</button>
                         </div>
                     </form>

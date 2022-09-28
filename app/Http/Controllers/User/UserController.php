@@ -72,11 +72,28 @@ class UserController extends Controller
 
         if(!empty($dataDecode->data->roles))
             $roles = $dataDecode->data->roles;
-        // dd($warehouses_new);
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'status'    => 1,
+                    'company_id' => !empty(session('company')['id']) ? session('company')['id'] : 1,
+                ))
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $userApi = UserApi::postData($postParam);
+        $dataDecode = json_decode($userApi);
+
+        if(!empty($dataDecode->data->stores))
+            $stores = $dataDecode->data->stores;
 
         return view('user.user.edit', [
             'request' => $request,
             'roles' => !empty($roles) ? $roles : [],
+            'stores' => !empty($stores) ? $stores : [],
             // 'settings' => $settings
         ]);
     }
@@ -111,7 +128,6 @@ class UserController extends Controller
         {
             $picture = GlobalHelper::uploadFile($request->file('file'), 'Profile_Picture_' . str_replace(" ", "_", $request->name), 'user', $user_token);
         }
-
         
         $postParam = array(
             'endpoint'  => 'v'.config('app.api_ver').'/register',
@@ -122,6 +138,7 @@ class UserController extends Controller
                 'password'  => !empty($request->input('password')) ? $request->input('password') : null,
                 'password_confirmation'  => !empty($request->input('password_confirmation')) ? $request->input('password_confirmation') : null,
                 'status'    => 1,
+                'store_id'  => $request->store_id,
                 'meta'      => !empty($request->meta) ? $request->meta : array(),
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
@@ -270,36 +287,44 @@ class UserController extends Controller
             \Session::flash('flash_error', $dataDecode->message);
             return redirect('users');
         }
-        // else if( //!GlobalHelper::userRole($request,'superadmin') && 
-        // !empty($company_id = $dataDecode->data->user->company_id) && $company_id !== session('company')['id'])
-        // {
-        //     \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-        //     return redirect('users');
-        // }
 
         if(!empty($dataDecode->data->user))
             $user = $dataDecode->data->user;
 
-        $shiftActive = false;
-        if(!empty($user->active_shift))
-            $shiftActive = true;
         if(!empty($user->metas))
         {
             foreach ($user->metas as $meta) 
                 $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
         }
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'status'    => 1,
+                    'company_id' => !empty(session('company')['id']) ? session('company')['id'] : 1,
+                ))
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $userApi = UserApi::postData($postParam);
+        $dataDecode = json_decode($userApi);
+
+        if(!empty($dataDecode->data->stores))
+            $stores = $dataDecode->data->stores;
+
+        if(!empty($user->stores))
+            $stores_selected = array_column($user->stores, 'id');
         return view('user.user.edit', 
             [
                 'request' => $request,
                 'roles' => !empty($roles) ? $roles : new stdClass,
                 'user' => !empty($user) ? $user : new stdClass,
                 'metas' => !empty($metas) ? $metas : array(),
-                // 'jobs' => !empty($jobs) ? $jobs : array(),
-                'levels' => !empty($levels) ? $levels : array(),
+                'stores' => !empty($stores) ? $stores : array(),
                 'companies' => !empty($companies) ? $companies : array(),
-                // 'warehouses' => !empty($warehouses_new) ? $warehouses_new : [],
-                'location_selected' => !empty($location_selected) ? $location_selected : [],
-                'shiftActive' => $shiftActive,
+                'stores_selected' => !empty($stores_selected) ? $stores_selected : [],
             ]
         );
     }
@@ -349,6 +374,7 @@ class UserController extends Controller
                 'password'  => !empty($request->input('password')) ? $request->input('password') : null,
                 'password_confirmation'  => !empty($request->input('password_confirmation')) ? $request->input('password_confirmation') : null,
                 'role'      => $request->input('role'),
+                'store_id'  => $request->store_id,
                 'status'    => !empty($request->status) ? 1 : 2,
                 'meta'      => !empty($request->meta) ? $request->meta : array(),
             ),

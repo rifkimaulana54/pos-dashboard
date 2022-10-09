@@ -62,3 +62,7 @@ Route::resource('/categories', App\Http\Controllers\Product\CategoryController::
 Route::post('/products/{id}/restore', [App\Http\Controllers\Product\ProductController::class, 'restore']);
 Route::post('/products/getProductList', [App\Http\Controllers\Product\ProductController::class, 'getProductList']);
 Route::resource('/products', App\Http\Controllers\Product\ProductController::class);
+
+//Kasir
+Route::post('/kasir/getProductList', [App\Http\Controllers\Kasir\KasirController::class, 'getProductList']);
+Route::resource('/kasir', App\Http\Controllers\Kasir\KasirController::class);

@@ -332,6 +332,15 @@ return [
             'url'     => 'products',
         ],
         [
+            'header' => 'ORDER MANAGEMENT',
+        ],
+        [
+            'text'    => 'Invoice Order',
+            'icon'    => 'fas fa-fw fa-file-invoice-dollar',
+            'active'  => ['invoice-orders'],
+            'url'     => 'invoice-orders',
+        ],
+        [
             'header' => 'USER MANAGEMENT',
             // 'can'   => [
             //     'read-cms-user',

@@ -8,7 +8,7 @@ use UserApi;
 use GlobalHelper;
 use AssetApi;
 
-class CompanyController extends Controller
+class StoreController extends Controller
 {
     public $successStatus = 200;
     public $limit = 25;
@@ -25,13 +25,13 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-company'))
+        if(!GlobalHelper::userCan($request,'read-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
         }
 
-        return view('setting.company.index', [
+        return view('setting.store.index', [
             'request' => $request
         ]);
     }
@@ -43,7 +43,7 @@ class CompanyController extends Controller
      */
     public function create(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'create-company'))
+        if(!GlobalHelper::userCan($request,'create-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -54,7 +54,6 @@ class CompanyController extends Controller
         $postParam = array(
             'endpoint'  => 'v'.config('app.api_ver').'/company',
             'form_params' => array(
-                'sort_by' => 'company_name',
                 'sort' => 'asc',
                 'filter' => json_encode(['status' => 1])
             ),
@@ -67,7 +66,7 @@ class CompanyController extends Controller
         if(!empty($dataDecode->data) && !empty($dataDecode->data->companies))
             $companies = $dataDecode->data->companies;        
 
-        return view('setting.company.edit', [
+        return view('setting.store.edit', [
             'request' => $request,
             'companies' => !empty($companies) ? $companies : []
         ]);
@@ -81,7 +80,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'create-company'))
+        if(!GlobalHelper::userCan($request,'create-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -90,25 +89,29 @@ class CompanyController extends Controller
         $user_token = $request->user_token;
 
         $validated = $request->validate([
-            'name'      => 'required|string|max:255'
+            'store_name'      => 'required|string|max:255'
         ]);
 
         if ($request->hasFile('file'))
-            $picture = GlobalHelper::uploadFile($request->file('file'), 'Logo_Company_' . str_replace(" ", "_", $request->name), 'user', $user_token);
+            $picture = GlobalHelper::uploadFile($request->file('file'), 'Logo_Store_' . str_replace(" ", "_", $request->name), 'user', $user_token);
 
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/company/store',
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store/store',
             'form_params' => array(
-                'company_name' => $request->name,
-                'parent_id'     => !empty($request->parent_id) ? $request->parent_id : null,
+                'store_name'  => $request->store_name,
+                'company_id'  => !empty($request->company_id) ? $request->company_id : '',
+                'no_telepone' => !empty($request->no_telepone) ? $request->no_telepone : '',
+                'store_address' => !empty($request->store_address) ? $request->store_address : '',
+                'store_description' => !empty($request->store_description) ? $request->store_description : '',
                 'meta'  => !empty($request->meta) ? $request->meta : null,
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        // dd($postParam);
         if(!empty($picture))
             $postParam['form_params']['meta']['image'] = GlobalHelper::maybe_serialize($picture);
+
+        // dd($postParam);
 
         $posApi = UserApi::postData( $postParam );
         $dataDecode = json_decode($posApi);
@@ -121,13 +124,13 @@ class CompanyController extends Controller
             // if(!empty($dataDecode->type))
             //     return redirect('reporting/types/'.$dataDecode->type->id.'/edit/');
 
-            return redirect('companies/create')->withInput();
+            return redirect('stores/create')->withInput();
         }
 
 
 
         \Session::flash('flash_success', $dataDecode->message);
-        return redirect('companies');
+        return redirect('stores');
     }
 
     /**
@@ -138,7 +141,7 @@ class CompanyController extends Controller
      */
     public function show(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request,'read-company'))
+        if(!GlobalHelper::userCan($request,'read-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -147,7 +150,7 @@ class CompanyController extends Controller
         $user_token = $request->user_token;
 
         $getParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/company/'.$id,
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store/'.$id,
             'form_params' => array(),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
@@ -158,21 +161,21 @@ class CompanyController extends Controller
         if(!empty($dataDecode) && $dataDecode->code !== 200)
         {
             \Session::flash('flash_error', $dataDecode->message);
-            return redirect('companies');
+            return redirect('stores');
         }
 
-        $company = $dataDecode->data->company;
+        $store = $dataDecode->data->store;
 
-        if(!empty($company->metas))
+        if(!empty($store->metas))
         {
-            foreach($company->metas as $meta)
+            foreach($store->metas as $meta)
             {
-                $company->meta[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
+                $store->meta[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
             }
         }
-        return view('setting.company.detail', [
+        return view('setting.store.detail', [
             'request' => $request,
-            'company' => !empty($company) ? $company : array()
+            'store' => !empty($store) ? $store : array()
         ]);
     }
 
@@ -184,7 +187,7 @@ class CompanyController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request,'update-company'))
+        if(!GlobalHelper::userCan($request,'update-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -193,7 +196,7 @@ class CompanyController extends Controller
         $user_token = $request->user_token;
 
         $getParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/company/'.$id,
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store/'.$id,
             'form_params' => array(),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
@@ -204,18 +207,17 @@ class CompanyController extends Controller
         if(!empty($dataDecode) && $dataDecode->code !== 200)
         {
             \Session::flash('flash_error', $dataDecode->message);
-            return redirect('companies');
+            return redirect('stores');
         }
 
-        $company = $dataDecode->data->company;
-        if(!empty($company->metas))
+        $store = $dataDecode->data->store;
+        if(!empty($store->metas))
         {
-            foreach($company->metas as $meta)
+            foreach($store->metas as $meta)
             {
-                $company->meta[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
+                $store->meta[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
             }
         }
-        // dd($company);
 
         $postParam = array(
             'endpoint'  => 'v'.config('app.api_ver').'/company',
@@ -234,9 +236,9 @@ class CompanyController extends Controller
         if(!empty($dataDecode->data) && !empty($dataDecode->data->companies))
             $companies = $dataDecode->data->companies;  
 
-        return view('setting.company.edit', [
+        return view('setting.store.edit', [
             'request' => $request,
-            'company' => !empty($company) ? $company : array(),
+            'store' => !empty($store) ? $store : array(),
             'companies' => !empty($companies) ? $companies : []
         ]);
     }
@@ -250,7 +252,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request,'update-company'))
+        if(!GlobalHelper::userCan($request,'update-store'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -259,19 +261,22 @@ class CompanyController extends Controller
         $user_token = $request->user_token;
 
         $validated = $request->validate([
-            'name'      => 'required|string|max:255'
+            'store_name'      => 'required|string|max:255'
         ]);
 
         if ($request->hasFile('file')) {
-            $picture = GlobalHelper::uploadFile($request->file('file'), 'Logo_Company_' . str_replace(" ", "_", $request->name), 'user', $user_token);
+            $picture = GlobalHelper::uploadFile($request->file('file'), 'Logo_Store_' . str_replace(" ", "_", $request->name), 'user', $user_token);
         }
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/company/' . $id,
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store/' . $id,
             'form_params' => array(
-                'company_name' => $request->name,
-                // 'parent_id'    => $request->company_id,
+                'store_name'  => $request->store_name,
+                'company_id'  => !empty($request->company_id) ? $request->company_id : '',
+                'no_telepone' => !empty($request->no_telepone) ? $request->no_telepone : '',
+                'store_address' => !empty($request->store_address) ? $request->store_address : '',
+                'store_description' => !empty($request->store_description) ? $request->store_description : '',
+                'meta'  => !empty($request->meta) ? $request->meta : null,
                 'status'       => !empty($request->status) ? 1 : 2,
-                'meta'         => !empty($request->meta) ? $request->meta : null,
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
@@ -288,11 +293,11 @@ class CompanyController extends Controller
             $error_message = $dataDecode->message;
             \Session::flash('flash_error', $error_message);
 
-            return redirect('companies/' . $id .'/edit')->withInput();
+            return redirect('stores/' . $id .'/edit')->withInput();
         }
         
         \Session::flash('flash_success', $dataDecode->message);
-        return redirect('companies');
+        return redirect('stores');
     }
 
     /**
@@ -305,12 +310,12 @@ class CompanyController extends Controller
     {
         $return = array(
             'success' => '',
-            'error' => 'Delete company gagal. Silahkan coba lagi'
+            'error' => 'Delete store gagal. Silahkan coba lagi'
         );
 
         try
         {
-            if(!GlobalHelper::userCan($request,'delete-company'))
+            if(!GlobalHelper::userCan($request,'delete-store'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -319,7 +324,7 @@ class CompanyController extends Controller
             $user_token = $request->user_token;
 
             $putParam = array(
-                'endpoint'  => 'v'.config('app.api_ver').'/company/' . $id,
+                'endpoint'  => 'v'.config('app.api_ver').'/our-store/' . $id,
                 'form_params' => array(
                     'status'      => 0,
                 ),
@@ -351,12 +356,12 @@ class CompanyController extends Controller
     {
         $return = array(
             'success' => '',
-            'error' => 'Restore company gagal. Silahkan coba lagi'
+            'error' => 'Restore store gagal. Silahkan coba lagi'
         );
 
         try
         {
-            if(!GlobalHelper::userCan($request,'update-company'))
+            if(!GlobalHelper::userCan($request,'update-store'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -365,7 +370,7 @@ class CompanyController extends Controller
             $user_token = $request->user_token;
 
             $putParam = array(
-                'endpoint'  => 'v'.config('app.api_ver').'/company/' . $id,
+                'endpoint'  => 'v'.config('app.api_ver').'/our-store/' . $id,
                 'form_params' => array(
                     'status'      => 1,
                 ),
@@ -393,67 +398,7 @@ class CompanyController extends Controller
         }
     }
 
-    public function setStrukturCompany(Request $request)
-    {
-        if(!GlobalHelper::userCan($request,'update-company'))
-        {
-            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('home');
-        }
-
-        return view('setting.company.struktur', [
-            'request' => $request,
-        ]);
-    }
-
-    public function storeStrukturCompany(Request $request)
-    {
-        if(!GlobalHelper::userCan($request,'update-company'))
-        {
-            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('home');
-        }
-
-        $user_token = $request->user_token;
-
-        $validated = $request->validate([
-            'company_json'      => 'required',
-        ]);
-        // dd($request->company_json);
-        $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/companies/update-parent',
-            'form_params' => array(
-                'companies' => $request->company_json
-            ),
-            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
-        );
-
-        $posApi = UserApi::postData( $postParam );
-        $dataDecode = json_decode($posApi);
-
-        // dd($dataDecode);
-
-        if(!empty($dataDecode->code) && $dataDecode->code != 200)
-        {
-            $error_message = $dataDecode->message;
-            \Session::flash('flash_error', $error_message);
-
-            // if(!empty($dataDecode->type))
-            //     return redirect('reporting/types/'.$dataDecode->type->id.'/edit/');
-
-            return redirect('companies/structure');
-        }
-        else
-        {
-            if(!empty($dataDecode->error))
-                \Session::flash('flash_error', implode(', ', $dataDecode->error));
-
-            \Session::flash('flash_success', $dataDecode->message);
-            return redirect('companies/structure');
-        }
-    }
-
-    public function getCompanyList(Request $request)
+    public function getStoreList(Request $request)
     {
         $return = array(
             'data' => '',
@@ -463,7 +408,7 @@ class CompanyController extends Controller
             'sEcho' => (int)$request->input('sEcho',true)
         );
 
-        if(!GlobalHelper::userCan($request,'read-company'))
+        if(!GlobalHelper::userCan($request,'read-store'))
         {
             $return['error'] = 'You don\'t have permission to access the page you requested.';
             return response()->json($return, $this->successStatus);
@@ -481,19 +426,22 @@ class CompanyController extends Controller
             case 3:$order_by='updated_at';break;
             case 2:$order_by='created_at';break;
             case 0:$order_by='id';break;
-            default:$order_by='display_name';break;
+            default:$order_by='store_name';break;
         }
 
         $order = $request->input('sSortDir_0',true);
 
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver'). '/company',
+            'endpoint'  => 'v'.config('app.api_ver'). '/our-store',
             'form_params' => array(
                 'page' => $page,
                 'per_page' => $this->limit,
                 'sort_by' => $order_by,
                 'keyword' => '',
                 'sort' => $order,
+                'filter' => json_encode(array(
+                    // 'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                )),
                 'filter_not' => null,
                 'date_filter' => null
             ),
@@ -512,11 +460,11 @@ class CompanyController extends Controller
             switch($dataDecode->code)
             {
                 case 200:  
-                    if(!empty($dataDecode->data) && !empty($dataDecode->data->companies))
+                    if(!empty($dataDecode->data) && !empty($dataDecode->data->stores))
                     {
                         $return['all'] = $return['iTotalRecords'] = $return['iTotalDisplayRecords'] = $dataDecode->data->total_records;
 
-                        foreach($dataDecode->data->companies as $l)
+                        foreach($dataDecode->data->stores as $l)
                         {
                             $l->created_html = date('M, d-Y H:i:s', strtotime($l->created_at));
                             $l->updated_html = date('M, d-Y H:i:s', strtotime($l->updated_at));
@@ -540,10 +488,10 @@ class CompanyController extends Controller
                             //     $u->role_name = implode(', ',$user_roles);
                             // }
 
-                            if(GlobalHelper::userCan($request,'update-company'))
+                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
                                 $l->update = 1;
 
-                            if(GlobalHelper::userCan($request,'delete-company'))
+                            if (GlobalHelper::userRole($request, 'superadmin') || (GlobalHelper::userCan($request, 'delete-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
                                 $l->delete = 1;
 
                             // if(!empty($u->metas))
@@ -557,7 +505,7 @@ class CompanyController extends Controller
                             // }
                         }
 
-                        $return['data'] = $dataDecode->data->companies;
+                        $return['data'] = $dataDecode->data->stores;
                         // unset($return['error']);
                     }
                     break;
@@ -581,7 +529,7 @@ class CompanyController extends Controller
             // 'sEcho' => (int)$request->input('sEcho',true)
         );
 
-        if(!GlobalHelper::userCan($request,'read-company'))
+        if(!GlobalHelper::userCan($request,'read-store'))
         {
             $return['error'] = 'You don\'t have permission to access the page you requested.';
             return response()->json($return, $this->successStatus);
@@ -590,7 +538,7 @@ class CompanyController extends Controller
         $user_token = $request->user_token;
 
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/companies',
+            'endpoint'  => 'v'.config('app.api_ver').'/stores',
             'form_params' => array(
                 'sort_by' => 'parent_id',
                 'sort' => 'asc',
@@ -606,33 +554,33 @@ class CompanyController extends Controller
         $posApi = UserApi::postData( $postParam );
         $dataDecode = json_decode($posApi);
         // dd($dataDecode);
-        $companies = array();
+        $stores = array();
 
         if(!empty($dataDecode->code))
         {
             switch($dataDecode->code)
             {
                 case 200:  
-                    if(!empty($dataDecode->data) && !empty($dataDecode->data->companies))
+                    if(!empty($dataDecode->data) && !empty($dataDecode->data->stores))
                     {
                         $return['all'] = $return['iTotalRecords'] = $return['iTotalDisplayRecords'] = $dataDecode->data->total_records;
                         $i = 0;
-                        foreach($dataDecode->data->companies as $company)
+                        foreach($dataDecode->data->stores as $company)
                         {
                             if(empty($company->parent_id))
                             {
-                                $companies[$i] = array(
+                                $stores[$i] = array(
                                     'id' => $company->id,
                                     'content' => $company->company_name,
                                 );
 
-                                if(!empty($this->hierarcyCompany($dataDecode->data->companies, $company->id)))
-                                    $companies[$i]['children'] = $this->hierarcyCompany($dataDecode->data->companies, $company->id);
+                                if(!empty($this->hierarcyCompany($dataDecode->data->stores, $company->id)))
+                                    $stores[$i]['children'] = $this->hierarcyCompany($dataDecode->data->stores, $company->id);
                                 $i++;
                             }
 
                         }
-                        $return['data'] = $companies;
+                        $return['data'] = $stores;
                     }
                     break;
                 default:
@@ -645,25 +593,25 @@ class CompanyController extends Controller
         return response()->json($return, $this->successStatus);
     }
 
-    private function hierarcyCompany($companies, $parent_id)
+    private function hierarcyCompany($stores, $parent_id)
     {
-        $companies_susun = array();
+        $stores_susun = array();
         $i = 0;
-        foreach ($companies as $company) 
+        foreach ($stores as $company) 
         {
             if($company->parent_id == $parent_id)
             {
-                $companies_susun[$i] = array(
+                $stores_susun[$i] = array(
                     'id' => $company->id,
                     'content' => $company->company_name,
                 );
 
-                if(!empty($this->hierarcyCompany($companies, $company->id)))
-                    $companies_susun[$i]['children'] = $this->hierarcyCompany($companies, $company->id);
+                if(!empty($this->hierarcyCompany($stores, $company->id)))
+                    $stores_susun[$i]['children'] = $this->hierarcyCompany($stores, $company->id);
                 $i++;
             }
         }
 
-        return $companies_susun;
+        return $stores_susun;
     }
 }

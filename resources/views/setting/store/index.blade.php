@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Setting - Company')
+@section('title', 'Setting - Store')
 
 @section('content_header')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Company</h1>
+            <h1 class="m-0 text-dark">Store</h1>
         </div><!-- /.col -->
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active">Company</li>
+                <li class="breadcrumb-item active">Store</li>
             </ol>
         </div><!-- /.col -->
     </div><!-- /.row -->
@@ -26,7 +26,7 @@
                     <div class="card">
                         <div class="card-header">
                             @if (GlobalHelper::userRole($request,'superadmin'))
-                                <a class="btn btn-primary btn-sx" href="{{ url('companies/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Company')}}</a>
+                                <a class="btn btn-primary btn-sx" href="{{ url('stores/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Store')}}</a>
                             @endif
                         </div>
                     <!-- /.card-header -->
@@ -38,11 +38,11 @@
                                 <div class="alert alert-success text-center">{!! session('flash_success') !!}</div>
                             @endif
                             <div class="table-responsive">
-                                <table id="companyList" class="table table-bordered table-striped">
+                                <table id="storeList" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Company Name</th>
+                                            <th>Store Name</th>
                                             <th>Created Date</th>
                                             <th>Modified Date</th>
                                             <th>Status</th>
@@ -80,5 +80,5 @@
         var base_url = {!! json_encode(url('/')) !!};
     </script>
     <script src="{{ asset('js/pos.js') }}"></script>
-    <script src="{{ asset('js/company.js') }}"></script>
+    <script src="{{ asset('js/store.js') }}"></script>
 @stop

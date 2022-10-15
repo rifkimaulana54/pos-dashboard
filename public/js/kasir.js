@@ -1,4 +1,4 @@
-var loadAjax, userAjax;
+var loadAjax, userAjax, timer, arr = [];
 
 $(document).ready(function() {
 
@@ -8,9 +8,9 @@ $(document).ready(function() {
         }
     });
 
-    if($('#form-user').length)
+    if($('#form-order').length)
     {
-        $('#form-user').on('submit', function()
+        $('#form-order').on('submit', function()
         {
             $('select').prop('disabled', false)
         })
@@ -24,7 +24,7 @@ $(document).ready(function() {
             var localParams = params || {};
             var cur = $(this);
 
-            if (!localParams.send && $('#form-user')[0].checkValidity()) 
+            if (!localParams.send && $('#form-order')[0].checkValidity()) 
             {
                 e.preventDefault();
                 swalConfirmSubmit(cur, e.type);
@@ -35,30 +35,34 @@ $(document).ready(function() {
 
     if($('.product-wrapper').length)
     {
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: base_url + '/kasir/getProductList/',    
-            dataType: "json",
-            beforeSend: function()
-            {
-                $('.spinner').removeClass('d-none');
-            },
-            success: function(data)
-            {
-                // console.log(data);
-                if(data.data.length != 0)
+        //set timeout overlay
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: base_url + '/kasir/getProductList/',    
+                dataType: "json",
+                beforeSend: function()
                 {
-                    var output = '';
-                    $.each(data.data, function(i, product)
+                    $('.spinner').removeClass('d-none');
+                },
+                success: function(data)
+                {
+                    // console.log(data);
+                    if(data.data.length != 0)
                     {
-                        output += buildItem(product);
-                    })
+                        var output = '';
+                        $.each(data.data, function(i, product)
+                        {
+                            output += buildItem(product);
+                        })
 
-                    $('.product-wrapper').html(output);
+                        $('.product-wrapper').html(output);
+                    }
                 }
-            }
-        });
+            });
+        },200)
     }
 
     $(document).on('change', '#category_id', function()
@@ -68,33 +72,36 @@ $(document).ready(function() {
 
         var $value = $(this).val();
 
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: base_url + '/kasir/getProductList/',    
-            data:{'category_id':$value},
-            // processData: false,
-            // contentType: false,
-            dataType: "json",
-            beforeSend: function()
-            {
-                $('.spinner').removeClass('d-none');
-            },
-            success: function(data)
-            {
-                // console.log(data);
-                if(data.data.length != 0)
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: base_url + '/kasir/getProductList/',    
+                data:{'category_id':$value},
+                // processData: false,
+                // contentType: false,
+                dataType: "json",
+                beforeSend: function()
                 {
-                    var output = '';
-                    $.each(data.data, function(i, product)
+                    $('.spinner').removeClass('d-none');
+                },
+                success: function(data)
+                {
+                    // console.log(data);
+                    if(data.data.length != 0)
                     {
-                        output += buildItem(product);
-                    })
+                        var output = '';
+                        $.each(data.data, function(i, product)
+                        {
+                            output += buildItem(product);
+                        })
 
-                    $('.product-wrapper').html(output);
+                        $('.product-wrapper').html(output);
+                    }
                 }
-            }
-        });
+            });
+        }, 200)
 
         // $(document).on('change', '.dd', function(e) 
         // {
@@ -119,37 +126,40 @@ $(document).ready(function() {
             $('#search').val('').focus();
             $('.icon').html('<i class="fas fa-fw fa-search"></i>')
         });
-
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: base_url + '/kasir/getProductList/',    
-            data:{'search': $value},
-            // processData: false,
-            // contentType: false,
-            dataType: "json",
-            beforeSend: function()
-            {
-                $('.spinner').removeClass('d-none');
-            },
-            success: function(data)
-            {
-                if(data.data.length != 0)
+        
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: base_url + '/kasir/getProductList/',    
+                data:{'search': $value},
+                // processData: false,
+                // contentType: false,
+                dataType: "json",
+                beforeSend: function()
                 {
-                    var output = '';
-                    $.each(data.data, function(i, product)
+                    $('.spinner').removeClass('d-none');
+                },
+                success: function(data)
+                {
+                    if(data.data.length != 0)
                     {
-                        output += buildItem(product);
-                    })
+                        var output = '';
+                        $.each(data.data, function(i, product)
+                        {
+                            output += buildItem(product);
+                        })
 
-                    $('.product-wrapper').html(output);
-                } 
-                else
-                {
-                    $('.product-wrapper').html('<p class="m-auto">Produk <b>#'+$value+'</b> tidak di temukan</p>');
+                        $('.product-wrapper').html(output);
+                    } 
+                    else
+                    {
+                        $('.product-wrapper').html('<p class="m-auto">Produk <b>#'+$value+'</b> tidak di temukan</p>');
+                    }
                 }
-            }
-        });
+            });
+        }, 200)
     });
 
     $(document).on('click','.btn-update-qty',function(e)
@@ -160,17 +170,33 @@ $(document).ready(function() {
         var operator = $(this).data('operator');
         var claim_qty = $(target).find('#claim_qty').val();
         var default_price = $(target).find('.default_price').val();
+        var grandtotal = $('#grandtotal').val();
 
         switch(operator)
         {
             case '+':
                 claim_qty++;
+                grandtotal_qty = parseInt(grandtotal)+parseInt(default_price)
                 break
             case '-':
                 claim_qty--;
+                grandtotal_qty = parseInt(grandtotal)-parseInt(default_price)
                 if(claim_qty<1){
                     claim_qty = 1;
-                    confirm('Yakin ingin di hapus?');
+                    if(confirm('Yakin ingin di hapus?'))
+                    {
+                        $(target).html('')
+                        if(!$('.clone_tr').find('td').length)
+                        {
+                            $('.not-product').removeClass('d-none')
+                            $('#customer-name').prop('disabled', true);
+                            $('.form-btn').css("opacity", "0.5");
+                            $('.add-btn-simpan').removeClass('btn-simpan');
+                            $('.add-btn-hapus').removeClass('btn-hapus');
+                            $('.add-btn-bayar').removeClass('btn-bayar');
+                            $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>')
+                        }
+                    }
                 }
                 break;
         }
@@ -182,15 +208,164 @@ $(document).ready(function() {
         $(target).find('#price').html('Rp. ' + DecimalAsString(claim_qty*default_price));
         $(target).find('.sub_price').val(claim_qty*default_price);
 
-        // console.log($(this).closest('.cart-item').find('.claim_qty').val());
+        console.log(grandtotal_qty);
+        $('#grandtotal').val(grandtotal_qty);
+        $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(grandtotal_qty)+'</b></h4>');
+        $('#total_add_qty').val(grandtotal_qty);
+    });
+
+    if(!$('.clone_tr').find('td').length){
+        $('#customer-name').prop('disabled', true);
+        $('.form-btn').css("opacity", "0.5");
+        $('.add-btn-simpan').removeClass('btn-simpan');
+        $('.add-btn-hapus').removeClass('btn-hapus');
+        $('.add-btn-bayar').removeClass('btn-bayar');
+    }
+    
+    $(document).on('click','.btn-product-card',function(e)
+    {
+        id = $(this).data('id');
+        name_product = $(this).data('name');
+        price = $(this).data('price');
+        table = $('#list_order');
+        clone = $(table).find('.tr_clone_items');
+
+        if($(table).length && $(clone).length)
+        {
+            e.preventDefault();
+            $tr_id = ($(table).find('tr[id^="add_tr_"]:visible').length)+1;
+            // $screen_number = parseInt($(this).parent().parent().find('.screen_number').text())-1;
+            var $cloned_tr = $(clone).clone(true);
+
+            $cloned_tr.attr({
+                id: 'add_tr_' +  $tr_id
+            }).removeAttr('style').removeAttr('class');
+
+            if(!$('.tr-'+id).find('td').length)
+            {
+                $('.not-product').addClass('d-none')
+                $cloned_tr.insertBefore(clone);
+                $cloned_tr.find('#product_name').text(name_product);
+                $cloned_tr.find('#price').text('Rp. '+DecimalAsString(price));
+                $cloned_tr.find('.sub_price').val(price);
+                $cloned_tr.find('.default_price').val(price);
+                $cloned_tr.find('.product_id').val(id);
+                $cloned_tr.addClass('clone_tr tr-'+id);
+                $cloned_tr.find('[name*="[##n##]"').each(function(){
+                    // Update the 'rules[0]' part of the name attribute to contain the latest count
+                    $(this).attr('name',$(this).attr('name').replace('##n##',$tr_id-1));
+                });
+                $('#customer-name').prop('disabled', false);
+                $('.form-btn').css("opacity", "1");
+                $('.add-btn-simpan').addClass('btn-simpan');
+                $('.add-btn-hapus').addClass('btn-hapus');
+                $('.add-btn-bayar').addClass('btn-bayar');
+                
+                //result grandtotal
+                if($('#total_add_qty').val() != 0)
+                {
+                    test = parseInt($('#total_add_qty').val())+price;
+                    console.log($('#total_add_qty').val());
+                    console.log(price);
+                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(test)+'</b></h4>');
+                    $('#total_add_qty').val(test);
+                    $('#grandtotal').val(test);
+                }
+                else
+                {
+                    arr.push(price);
+                    total = arr.reduce(function(a,b){return a+b})
+                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(total)+'</b></h4>')
+                    $('#grandtotal').val(total);
+                }
+            }
+        }
+    });
+
+    $(document).on('click','.btn-simpan',function(e)
+    {
+        $('.btnSubmit').click();
+
+    });
+
+    $(document).on('click','.btn-bayar',function(e)
+    {
+        $('.btnSubmit').click();
+
+    });
+
+    $(document).on('change', '#order_id', function()
+    {
+        var id = $(this).val();
+        $('#customer-name').val('');
+        $('#customer-name').prop('disabled', false); 
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: base_url + '/kasir/'+id,    
+                // data:{'order_id':id},
+                // processData: false,
+                // contentType: false,
+                dataType: "json",
+                beforeSend: function()
+                {
+                    $('.spinner').removeClass('d-none');
+                },
+                success: function(data)
+                {
+                    if(data.customer_name != undefined)
+                    {
+                        $('#customer-name').val(data.customer_name);
+                        $('#customer-name').prop('disabled', true);
+                    }
+
+                    
+                    console.log(data);
+                    // if(data.mapping.length != 0)
+                    // {
+                    //     var html = '';
+                    //     $.each(data.mapping, function(i, item)
+                    //     {
+                    //         html += '<tr class="tr_clone_items">';
+                    //             html += '<td>';
+                    //                 html += '<div class="input-group input-spinner">';
+                    //                     html += '<div class="input-group-prepend">';
+                    //                         html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
+                    //                     html += '</div>';
+                    //                     html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">';
+                    //                     html += '<div class="input-group-append">';
+                    //                         html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
+                    //                     html += '</div>';
+                    //                 html += '</div>';
+                    //             html += '</td>';
+                    //             html += '<td width="210">';
+                    //                 html += '<p class="mt-3">'+item["product"].product_display_name+'</p>';
+                    //             html += '</td>';
+                    //             html += '<td>';
+                    //                 html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_subtotal'])+'</p>';
+                    //                 html += '<input type="hidden" value="" class="default_price">';
+                    //                 html += '<input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">';
+                    //                 html += '<input type="hidden" name="items[##n##][column][product_id]" class="product_id" value="'+item["id"]+'">';
+                    //             html += '</td>';
+                    //         html += "</tr>";
+                    //     })
+
+                    //     $('#list_order').html(html);
+                    // }
+                }
+            });
+        }, 200)
+
     });
 });
 
 function buildItem(item) {
 
     var html = '<div class="col-md-2.5 ml-3">';
-        html += '<a href="#" class="product-show" title="'+item.product_display_name+'">';
-            html += '<div class="card card-kasir" style="width: 133px">';
+        html += '<div class="product-show btn-product-card" data-name="'+item.product_display_name+'" data-price="'+item.product_price+'" data-id="'+item.id+'" title="'+item.product_display_name+'">';
+            html += '<div class="card card-kasir" id="card-product" style="width: 133px">';
 
                 if (item.metas) 
                 {
@@ -201,9 +376,37 @@ function buildItem(item) {
 
                 html += '<p class="text-center mb-0 text-light text-price"><b>Rp. '+DecimalAsString(item.product_price)+'</b></p>';
                 html += '<p class="card-text text-center text-title"><b>'+item.product_display_name.substr(0, 28)+'</b></p>';
+                // html += '<input type="hidden" value="1" class="selected-'+item.id+'">';
             html += "</div>";
-        html += "</a>";
+        html += "</div>";
     html += "</div>";
 
+    return html;
+}
+
+function itemOrder(item, data) {
+        html = '<tr class="tr_clone_items">';
+            html += '<td>';
+                html += '<div class="input-group input-spinner">';
+                    html += '<div class="input-group-prepend">';
+                        html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
+                    html += '</div>';
+                    html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">';
+                    html += '<div class="input-group-append">';
+                        html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
+                    html += '</div>';
+                html += '</div>';
+            html += '</td>';
+            html += '<td width="210">';
+                html += '<p class="mt-3"></p>';
+            html += '</td>';
+            html += '<td>';
+                html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_qty'])+'</p>';
+                html += '<input type="hidden" value="" class="default_price">';
+                html += '<input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">';
+                html += '<input type="hidden" name="items[##n##][column][product_id]" class="product_id" value="'+item["id"]+'">';
+            html += '</td>';
+        html += "</tr>";
+    
     return html;
 }

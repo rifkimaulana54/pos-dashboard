@@ -443,6 +443,7 @@ tr.shown td.details-control {
 
 .product-show {
     color: #000000;
+    cursor: pointer;
 }
 
 .card-kasir:hover {
@@ -450,6 +451,10 @@ tr.shown td.details-control {
     margin-top: -3px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.5);
 }
+
+/* #card-product:hover {
+    color: #626262;
+} */
 
 .scrollbar-deep-order::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
@@ -488,7 +493,7 @@ tr.shown td.details-control {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 58.3vh;
+    height: 64.7vh;
 }
 
 .text-price {
@@ -562,6 +567,19 @@ tr.shown td.details-control {
     color: #fff;
 }
 
-.btn-order-price {
-    color: #fff;
+.btn-bayar:hover {
+    cursor: pointer;
+    background: rgb(127, 127, 127);
+    color: #000000;
+
+}
+
+.btn-hapus:hover {
+    cursor: pointer;
+    background: #999;
+}
+
+.btn-simpan:hover {
+    cursor: pointer;
+    background: #999;
 }

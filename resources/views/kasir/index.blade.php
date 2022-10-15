@@ -1,5 +1,8 @@
 @extends('adminlte::page-kasir')
 
+@section('content_header')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+@stop
 @section('body')
     <nav class="navbar-top p-3">
         <div class="row">
@@ -68,26 +71,24 @@
                             </div>
                         @endforeach --}}
                     </div>
-                    <div class="overlay d-none spinner">
-                        <i class="fa fa-fw fa-spinner fa-spin"></i>
-                    </div>
                 </div>
                 <!-- Grid column -->
             </div>
         </div>
         <div class="col-sm-4">
-            <form action="">
+            <form action="kasir/store" method="POST" id="form-order">
+                @csrf
                 <div class="row border-bottom border-dark">
                     <div class="col-md-6 border-right border-dark">
                         <div class="border-bottom mt-1">
                             <b>ORDER LIST</b>
                         </div>
                         <div class="mt-2 mb-1">
-                            <select class="form-control filter-table select2 mr-2" disabled name="category_id" id="category_id">
-                                <option value="">-- Select Order Code --</option>
-                                @if (!empty(session('companies')))
-                                    @foreach (session('companies') as $comp)
-                                        <option value="{{$comp['id']}}" @if(!empty(session('company')['id']) && session('company')['id'] == $comp['id']) selected @endif>{{$comp['company_name']}}</option>
+                            <select class="form-control filter-table select2 mr-2" name="order_id" id="order_id">
+                                <option value="">-- Order Code --</option>
+                                @if (!empty($orders))
+                                    @foreach ($orders as $order)
+                                        <option value="{{$order->id}}" @if(!empty($order_list->order_id) && $order_list == $order->id) selected @endif>{{$order->order_code}}@if(!empty($order->customer_name)) #{{$order->customer_name}}@endif</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -96,112 +97,68 @@
                     <div class="col-md-6 mt-1">
                         <b>CUSTOMER NAME</b>
                         <div class="mb-1">
-                            <input type="text" class="form-control" placeholder="Enter Name"  style="max-width: 200px" required>
+                            <input type="text" class="form-control" name="customer" id="customer-name" placeholder="Enter Name"  style="max-width: 200px" required>
                         </div>
                     </div>
                 </div>
                 
                 {{-- muncul ketika sudah memilih produk --}}
-                <p class="m-2">Order Code: KO/06/000001</p>
+                {{-- <p class="m-2">Order Code: CO/06/000001</p> --}}
                 <div class="example-2 scrollbar-deep-order bord-orderered-deep-order thin-order">
                     <table>
-                        <tbody>
-                            <tr>
+                        <tbody id="list_order">
+                            <p class="m-3 not-product">Belum ada product yang dipilih!</p>
+                            <tr class="d-none tr_clone_items">
                                 <td>
                                     <div class="input-group input-spinner">
                                         <div class="input-group-prepend">
                                             <button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>
                                         </div>
-                                        <input type="text" class="form-control claim_qty px-0" value="1" min="1" name="claim_qty" id="claim_qty" max="45">
+                                        <input type="text" class="form-control claim_qty px-0 " value="1" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">
                                         <div class="input-group-append">
                                             <button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>
                                         </div>
                                     </div>
                                 </td>
-                                <td width="210" class="">
-                                    <p class="mt-3">ini adalah nama product </p>
+                                <td width="210">
+                                    <p class="mt-3" id="product_name"></p>
                                 </td>
                                 <td>
-                                    <p class="mt-3" id="price">Rp. 10.000</p>
-                                    <input type="hidden" value="10000" class="default_price">
-                                    <input type="hidden" value="10000" class="sub_price">
+                                    <p class="mt-3" id="price"></p>
+                                    <input type="hidden" class="default_price">
+                                    <input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">
+                                    <input type="hidden" name="items[##n##][column][product_id]" class="product_id">
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="input-group input-spinner">
-                                        <div class="input-group-prepend">
-                                            <button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>
-                                        </div>
-                                        <input type="text" class="form-control claim_qty px-0" value="2" min="1" name="claim_qty" id="claim_qty" max="45">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="45"> <i class="fa fa-plus"></i> </button>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td width="210" class="">
-                                    <p class="mt-3">ini adalah nama product </p>
-                                </td>
-                                <td>
-                                    <p class="mt-3" id="price">Rp. 30.000</p>
-                                    <input type="hidden" value="30000" class="default_price">
-                                    <input type="hidden" value="30000" class="sub_price">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="input-group input-spinner">
-                                        <div class="input-group-prepend">
-                                            <button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>
-                                        </div>
-                                        <input type="text" class="form-control claim_qty px-0" value="1" min="1" name="claim_qty" id="claim_qty" max="45">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="45"> <i class="fa fa-plus"></i> </button>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td width="210" class="">
-                                    <p class="mt-3">ini adalah nama product </p>
-                                </td>
-                                <td>
-                                    <p class="mt-3" id="price">Rp. 1.750.000</p>
-                                    <input type="hidden" value="1750000" class="default_price">
-                                    <input type="hidden" value="1750000" class="sub_price">
-                                </td>
-                            </tr>
+                            <input type="hidden" value="0" id="total_add_qty">
                         </tbody>
                     </table>
+                    <input type="hidden" name="grandtotal" value="0" id="grandtotal">
                 </div>
-                <div class="row bg-light">
-                    <div class="col text-center p-2">
-                        <a href="" class="btn-order">
-                            <b>HAPUS</b>
-                        </a>
+                <div class="row bg-light form-btn">
+                    <div class="col text-center p-2 btn-hapus add-btn-hapus">
+                        <b>HAPUS</b>
                     </div>
-                    <div class="col text-center p-2 border-left border-dark">
-                        <a href="" class="btn-order">
-                            <b>SIMPAN</b>
-                        </a>
+                    <div class="col text-center p-2 border-left border-dark btn-simpan add-btn-simpan">
+                        <b>SIMPAN</b>
                     </div>
+                    <button type="submit" class="btnSubmit d-none"></button>
                 </div>
-                <div class="row order-price">
+                <div class="row order-price btn-bayar add-btn-bayar form-btn">
                     <div class="col text-center pt-2">
-                        <a href="" class="btn-order-price">
-                            <h4><b>BAYAR</b></h4>
-                        </a>
+                        <h4><b>BAYAR</b></h4>
                     </div>
-                    <div class="col text-center pt-2">
-                        <a href="" class="btn-order-price">
-                            <h4><b>Rp. 5.000.000</b></h4>
-                        </a>
+                    <div class="col text-center pt-2 grandtotal-bayar">
+                        <h4><b>Rp. 0</b></h4>
                     </div>
                 </div>
             </form>
         </div>
+        <div class="overlay d-none spinner">
+            <i class="fa fa-fw fa-spinner fa-spin"></i>
+        </div>
     </div>
-    <div class="row">
-        
-    </div>
+    
     <!-- Grid row -->
 @stop
 

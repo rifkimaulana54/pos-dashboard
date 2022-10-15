@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use GlobalHelper;
 use ProductApi;
+use OrderApi;
 
 class KasirController extends Controller
 {
+    public $successStatus = 200;
+
     public function __construct()
     {
         $this->middleware('custom_auth');
@@ -46,11 +49,27 @@ class KasirController extends Controller
         if(!empty($catDecode->data->categories))
             $categories = $catDecode->data->categories;
 
-        // dd($products);
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/order',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                ))
+            ),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $orderApi = OrderApi::postData($postParam);
+        $orderDecode = json_decode($orderApi);
+
+        if (!empty($orderDecode->data->orders))
+            $orders = $orderDecode->data->orders;
+
+        // dd($orders);
         return view('kasir.index', [
             'request' => $request,
             'categories' => !empty($categories) ? $categories : array(),
-            // 'products' => !empty($products) ? $products : array(),
+            'orders' => !empty($orders) ? $orders : array(),
         ]);
     }
 
@@ -72,7 +91,14 @@ class KasirController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $test = $request;
+        foreach ($request->items as $value) {
+            if($value['column']['product_id'] == null)
+                continue;
+            dump($value['column']);
+        }
+        dd($test);
+        // dd(array_sum($request->items['subtotal']));
     }
 
     /**
@@ -81,9 +107,39 @@ class KasirController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        //
+        if(!GlobalHelper::userCan($request, 'read-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/' . $id,
+            'form_params' => array(),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $orderApi = OrderApi::getData($postParam);
+        $dataDecode = json_decode($orderApi);
+
+        if(!empty($dataDecode->data->order))
+            $order = $dataDecode->data->order;
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            // $error_message = $dataDecode->message;
+            // \Session::flash('flash_error', $error_message);
+
+            return response()->json('Gagal add to cart', $this->successStatus);
+        }
+        else
+        {
+            return response()->json($order);
+        }
     }
 
     /**
@@ -171,5 +227,48 @@ class KasirController extends Controller
         // dd($products);
         return response()->json($return, $this->successStatus);
 
+    }
+
+    public function addToCart(Request $request)
+    {
+        if(!GlobalHelper::userCan($request,'read-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('users/categories');
+        }
+
+        $user_token = $request->user_token;
+
+        $items = [];
+        $items[] = $request->id;
+        $items[] = $request->qty;
+        $items[] = $request->subtotal;
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/store',
+            'form_params' => array(
+                'items'  => json_decode(json_encode($items)),
+                'status' => 5,
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        // dd($postParam);
+
+        $orderApi = OrderApi::postData( $postParam );
+        $dataDecode = json_decode($orderApi);
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return response()->json('Gagal add to cart', $this->successStatus);
+        }
+        else
+        {
+            \Session::flash('flash_success', $dataDecode->message);
+            return response()->json('Berhasil add to cart', $this->successStatus);
+        }
     }
 }

@@ -60,6 +60,8 @@ return [
 
     'api_product_url' => env('API_URL', 'http://localhost:7001/') . 'product/',
 
+    'api_order_url' => env('API_URL', 'http://localhost:7001/') . 'order/',
+
     'force_https' => env('REDIRECT_HTTPS', false),
 
     'api_ver' => env('API_VER', '1_0'),
@@ -228,6 +230,7 @@ return [
         'Log' => Illuminate\Support\Facades\Log::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
+        'OrderApi' => App\Helpers\OrderApiHelper::class,
         'Password' => Illuminate\Support\Facades\Password::class,
         'ProductApi' => App\Helpers\ProductApiHelper::class,
         'Queue' => Illuminate\Support\Facades\Queue::class,

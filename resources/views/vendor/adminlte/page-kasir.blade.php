@@ -6,7 +6,7 @@
 @stop
 
 @section('body')
-    
+    @yield('content_header')
 @stop
 
 @section('adminlte_js')

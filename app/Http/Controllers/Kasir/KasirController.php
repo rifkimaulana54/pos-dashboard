@@ -24,11 +24,12 @@ class KasirController extends Controller
      */
     public function index(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-store'))
+        if(!GlobalHelper::userCan($request,'read-orders'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
         }
+        // dd($request);
 
         $user_token = $request->user_token;
 
@@ -53,6 +54,8 @@ class KasirController extends Controller
             'endpoint'  => 'v' . config('app.api_ver') . '/order',
             'form_params' => array(
                 'filter' => json_encode(array(
+                    'store_id' => $request->store_id,
+                    'status' => 2,
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
                 ))
             ),
@@ -65,10 +68,11 @@ class KasirController extends Controller
         if (!empty($orderDecode->data->orders))
             $orders = $orderDecode->data->orders;
 
-        // dd($orders);
+        // dd($orderDecode);
         return view('kasir.index', [
             'request' => $request,
             'categories' => !empty($categories) ? $categories : array(),
+            'count_orders' => !empty($orderDecode->data->total_records) ? $orderDecode->data->total_records : array(),
             'orders' => !empty($orders) ? $orders : array(),
         ]);
     }
@@ -91,14 +95,62 @@ class KasirController extends Controller
      */
     public function store(Request $request)
     {
-        $test = $request;
-        foreach ($request->items as $value) {
-            if($value['column']['product_id'] == null)
-                continue;
-            dump($value['column']);
+        if(!GlobalHelper::userCan($request, 'create-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
         }
-        dd($test);
-        // dd(array_sum($request->items['subtotal']));
+
+        $user_token = $request->user_token;
+        // dump($request->all());
+
+        $item_orders = [];
+        if(!empty($request->items))
+        {
+            foreach($request->items as $i => $items)
+            {
+                if (is_int($i) && !empty($items['column']['product_id'])) 
+                {
+                    $item_orders[] = array(
+                        'product_id' => !empty($items['column']['product_id']) ? $items['column']['product_id'] : '',
+                        'order_qty' => !empty($items['column']['claim_qty']) ? $items['column']['claim_qty'] : '',
+                        'default_price' => !empty($items['column']['default_price']) ? $items['column']['default_price'] : '',
+                        'order_subtotal' => !empty($items['column']['subtotal']) ? $items['column']['subtotal'] : '',
+                    );
+                }
+                
+            }
+        }
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/store',
+            'form_params' => array(
+                'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                'customer_name' => !empty($request->customer) ? $request->customer : '',
+                'total_order' => !empty($request->grandtotal) ? $request->grandtotal : '',
+                'items' => !empty($item_orders) ? GlobalHelper::maybe_serialize($item_orders) : '',
+                'status'      => 2,
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+        // dd($postParam);
+
+        $orderApi = OrderApi::postData( $postParam );
+        $dataDecode = json_decode($orderApi);
+        dd($dataDecode);
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return redirect('kasir')->withInput();
+        }
+        else
+        {
+            \Session::flash('flash_success', $dataDecode->message);
+            return redirect('kasir/order-list');
+        }
     }
 
     /**
@@ -162,7 +214,7 @@ class KasirController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        dd('masuk update');
     }
 
     /**
@@ -229,46 +281,10 @@ class KasirController extends Controller
 
     }
 
-    public function addToCart(Request $request)
+    public function orderList(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-orders'))
-        {
-            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('users/categories');
-        }
-
-        $user_token = $request->user_token;
-
-        $items = [];
-        $items[] = $request->id;
-        $items[] = $request->qty;
-        $items[] = $request->subtotal;
-
-        $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/order/store',
-            'form_params' => array(
-                'items'  => json_decode(json_encode($items)),
-                'status' => 5,
-            ),
-            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
-        );
-
-        // dd($postParam);
-
-        $orderApi = OrderApi::postData( $postParam );
-        $dataDecode = json_decode($orderApi);
-
-        if(!empty($dataDecode->code) && $dataDecode->code != 200)
-        {
-            $error_message = $dataDecode->message;
-            \Session::flash('flash_error', $error_message);
-
-            return response()->json('Gagal add to cart', $this->successStatus);
-        }
-        else
-        {
-            \Session::flash('flash_success', $dataDecode->message);
-            return response()->json('Berhasil add to cart', $this->successStatus);
-        }
+        return view('kasir.order-list', [
+            'request' => $request,
+        ]);
     }
 }

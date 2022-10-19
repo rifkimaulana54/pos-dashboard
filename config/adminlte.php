@@ -332,7 +332,7 @@ return [
             'url'     => 'products',
         ],
         [
-            'header' => 'ORDER MANAGEMENT',
+            'header' => 'TRANSACTION',
         ],
         [
             'text'    => 'Invoice Order',

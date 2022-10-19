@@ -64,8 +64,9 @@ Route::post('/products/getProductList', [App\Http\Controllers\Product\ProductCon
 Route::resource('/products', App\Http\Controllers\Product\ProductController::class);
 
 //Kasir
-Route::post('/kasir/addToCart', [App\Http\Controllers\Kasir\KasirController::class, 'addToCart']);
+Route::get('/kasir/order-list', [App\Http\Controllers\Kasir\KasirController::class, 'orderList']);
 Route::post('/kasir/getProductList', [App\Http\Controllers\Kasir\KasirController::class, 'getProductList']);
 Route::get('/kasir', [App\Http\Controllers\Kasir\KasirController::class, 'index']);
 Route::post('/kasir/store', [App\Http\Controllers\Kasir\KasirController::class, 'store']);
 Route::get('/kasir/{id}', [App\Http\Controllers\Kasir\KasirController::class, 'show']);
+Route::put('/kasir/{id}', [App\Http\Controllers\Kasir\KasirController::class, 'update']);

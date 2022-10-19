@@ -76,6 +76,8 @@ class CustomAuth
                     $request->request->add(['user_role' => $apy['rl']]);
                     if(!empty($apy['ip']))
                         $request->request->add(['ip_address' => $apy['ip']]);
+                    if(!empty($apy['st']))
+                        $request->request->add(['store_id' => $apy['st']]);
 
                     return $next($request);
                 }

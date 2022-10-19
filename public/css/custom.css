@@ -583,3 +583,8 @@ tr.shown td.details-control {
     cursor: pointer;
     background: #999;
 }
+
+.btn-list-order:hover {
+    cursor: pointer;
+    background: #999;
+}

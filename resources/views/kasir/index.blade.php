@@ -21,10 +21,10 @@
         </div>
     </nav>
     <div class="row" id="navbar">
-        <div class="col-sm-8 border-right border-dark">
+        <div class="col-md-8 border-right border-dark">
             <div class="row">
                 <div class="d-flex mt-3 col-sm-6">
-                    <label class="py-2 mx-2">Filter</label>
+                    <label class="py-2 mx-2"><i class="fas fa-fw fa-filter"></i>Filter</label>
                     <div class="mr-2">
                         <select class="form-control filter-table select2 mr-2" name="category_id" id="category_id" style="max-width: 250px">
                             <option value="" id="all">-- All Category --</option>
@@ -75,18 +75,19 @@
                 <!-- Grid column -->
             </div>
         </div>
-        <div class="col-sm-4">
-            <form action="kasir/store" method="POST" id="form-order">
-                @csrf
+        <div class="col-md-4">
+            <form action="{{url('kasir/store')}}" method="POST" id="form-order">
+                {{ csrf_field() }}
+                <div id="update-order"></div>
                 <div class="row border-bottom border-dark">
-                    <div class="col-md-6 border-right border-dark">
-                        <div class="border-bottom mt-1">
-                            <b>ORDER LIST</b>
+                    <div class="col-6 border-right border-dark">
+                        <div class="border-bottom mt-1 btn-list-order">
+                            <b><i class="fas fa-fw fa-list"></i>ORDER LIST</b><small class="bg-danger rounded-circle pl-1 pr-1 count-order">@if(!empty($count_orders)){{$count_orders}}@else{{0}}@endif</small>
                         </div>
                         <div class="mt-2 mb-1">
                             <select class="form-control filter-table select2 mr-2" name="order_id" id="order_id">
-                                <option value="">-- Order Code --</option>
-                                @if (!empty($orders))
+                                <option value="" id="order_code">-- Order Code --</option>
+                                @if(!empty($orders))
                                     @foreach ($orders as $order)
                                         <option value="{{$order->id}}" @if(!empty($order_list->order_id) && $order_list == $order->id) selected @endif>{{$order->order_code}}@if(!empty($order->customer_name)) #{{$order->customer_name}}@endif</option>
                                     @endforeach
@@ -94,10 +95,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6 mt-1">
-                        <b>CUSTOMER NAME</b>
+                    <div class="col-6 mt-1">
+                        <b><i class="fas fa-fw fa-user"></i>CUSTOMER NAME</b>
                         <div class="mb-1">
-                            <input type="text" class="form-control" name="customer" id="customer-name" placeholder="Enter Name"  style="max-width: 200px" required>
+                            <input type="text" class="form-control" name="customer" id="customer-name" placeholder="Enter Name"  style="max-width: 200px" required autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -108,13 +109,15 @@
                     <table>
                         <tbody id="list_order">
                             <p class="m-3 not-product">Belum ada product yang dipilih!</p>
+                            <div id="append_order">
+                            </div>
                             <tr class="d-none tr_clone_items">
                                 <td>
                                     <div class="input-group input-spinner">
                                         <div class="input-group-prepend">
                                             <button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>
                                         </div>
-                                        <input type="text" class="form-control claim_qty px-0 " value="1" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">
+                                        <input type="text" class="form-control claim_qty px-0 " value="1" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45" readonly>
                                         <div class="input-group-append">
                                             <button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>
                                         </div>
@@ -125,7 +128,7 @@
                                 </td>
                                 <td>
                                     <p class="mt-3" id="price"></p>
-                                    <input type="hidden" class="default_price">
+                                    <input type="hidden" name="items[##n##][column][default_price]" value="0" class="default_price">
                                     <input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">
                                     <input type="hidden" name="items[##n##][column][product_id]" class="product_id">
                                 </td>
@@ -137,16 +140,16 @@
                 </div>
                 <div class="row bg-light form-btn">
                     <div class="col text-center p-2 btn-hapus add-btn-hapus">
-                        <b>HAPUS</b>
+                        <b><i class="fas fa-fw fa-trash"></i>HAPUS</b>
                     </div>
                     <div class="col text-center p-2 border-left border-dark btn-simpan add-btn-simpan">
-                        <b>SIMPAN</b>
+                        <b><i class="fas fa-fw fa-save"></i>SIMPAN</b>
                     </div>
                     <button type="submit" class="btnSubmit d-none"></button>
                 </div>
                 <div class="row order-price btn-bayar add-btn-bayar form-btn">
                     <div class="col text-center pt-2">
-                        <h4><b>BAYAR</b></h4>
+                        <h4><b><i class="fas fa-fw fa-credit-card"></i> BAYAR</b></h4>
                     </div>
                     <div class="col text-center pt-2 grandtotal-bayar">
                         <h4><b>Rp. 0</b></h4>

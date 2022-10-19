@@ -197,6 +197,8 @@ $(document).ready(function() {
                             $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>')
                         }
                     }
+                    else
+                        return false;
                 }
                 break;
         }
@@ -204,11 +206,12 @@ $(document).ready(function() {
             $('.btn-update-qty').find('.button-minus').prop('disabled',false);
         else
             $('.btn-update-qty').find('.button-minus').prop('disabled',true);
+
         $(target).find('#claim_qty').val(claim_qty);
         $(target).find('#price').html('Rp. ' + DecimalAsString(claim_qty*default_price));
         $(target).find('.sub_price').val(claim_qty*default_price);
 
-        console.log(grandtotal_qty);
+        // console.log(grandtotal_qty);
         $('#grandtotal').val(grandtotal_qty);
         $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(grandtotal_qty)+'</b></h4>');
         $('#total_add_qty').val(grandtotal_qty);
@@ -230,10 +233,11 @@ $(document).ready(function() {
         table = $('#list_order');
         clone = $(table).find('.tr_clone_items');
 
+        // console.log(clone);
         if($(table).length && $(clone).length)
         {
             e.preventDefault();
-            $tr_id = ($(table).find('tr[id^="add_tr_"]:visible').length)+1;
+            $tr_id = ($('tr[id^="add_tr_"]:visible').length)+1;
             // $screen_number = parseInt($(this).parent().parent().find('.screen_number').text())-1;
             var $cloned_tr = $(clone).clone(true);
 
@@ -255,7 +259,8 @@ $(document).ready(function() {
                     // Update the 'rules[0]' part of the name attribute to contain the latest count
                     $(this).attr('name',$(this).attr('name').replace('##n##',$tr_id-1));
                 });
-                $('#customer-name').prop('disabled', false);
+                if($('#order_id').val() == '')
+                    $('#customer-name').prop('disabled', false);
                 $('.form-btn').css("opacity", "1");
                 $('.add-btn-simpan').addClass('btn-simpan');
                 $('.add-btn-hapus').addClass('btn-hapus');
@@ -264,34 +269,36 @@ $(document).ready(function() {
                 //result grandtotal
                 if($('#total_add_qty').val() != 0)
                 {
-                    test = parseInt($('#total_add_qty').val())+price;
-                    console.log($('#total_add_qty').val());
-                    console.log(price);
-                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(test)+'</b></h4>');
-                    $('#total_add_qty').val(test);
-                    $('#grandtotal').val(test);
+                    result = parseInt($('#total_add_qty').val())+price;
+                    
+                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(result)+'</b></h4>');
+                    $('#total_add_qty').val(result);
+                    $('#grandtotal').val(result);
                 }
                 else
                 {
-                    arr.push(price);
-                    total = arr.reduce(function(a,b){return a+b})
-                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(total)+'</b></h4>')
-                    $('#grandtotal').val(total);
+                    if($('#order_id').val() == '')
+                    {
+                        result = parseInt($('#total_add_qty').val())+price;
+                        $('#total_add_qty').val(result);
+                        $('#grandtotal').val(result);
+                    }
+                    else
+                    {
+                        grandtotal = $('#grandtotal').val();
+
+                        arr.push(price);
+                        total = arr.reduce(function (a, b) { return a + b })
+                        result = parseInt(grandtotal) + total
+                    }
+
+                    $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(result)+'</b></h4>')
+                    $('#grandtotal').val(result);
                 }
             }
+            else
+                $('.tr-'+id).find('.button-plus').click();
         }
-    });
-
-    $(document).on('click','.btn-simpan',function(e)
-    {
-        $('.btnSubmit').click();
-
-    });
-
-    $(document).on('click','.btn-bayar',function(e)
-    {
-        $('.btnSubmit').click();
-
     });
 
     $(document).on('change', '#order_id', function()
@@ -299,66 +306,146 @@ $(document).ready(function() {
         var id = $(this).val();
         $('#customer-name').val('');
         $('#customer-name').prop('disabled', false); 
-        clearTimeout(timer)
-        timer = setTimeout(function() {
-            $.ajax({
-                type: "GET",
-                dataType: "json",
-                url: base_url + '/kasir/'+id,    
-                // data:{'order_id':id},
-                // processData: false,
-                // contentType: false,
-                dataType: "json",
-                beforeSend: function()
-                {
-                    $('.spinner').removeClass('d-none');
-                },
-                success: function(data)
-                {
-                    if(data.customer_name != undefined)
+
+        $('#total_add_qty').val(0);
+        $('.not-product').removeClass('d-none');
+        $('#append_order').html('');
+        $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>')
+        $('#grandtotal').val(0);
+        $('.form-btn').css("opacity", "0.5");
+        $('.add-btn-simpan').removeClass('btn-simpan');
+        $('.add-btn-hapus').removeClass('btn-hapus');
+        $('.add-btn-bayar').removeClass('btn-bayar');
+        if($('tr[id^="add_tr_"]:visible').length)
+            $('tr[id^="add_tr_"]:visible').remove();
+        $('#form-order').attr('action', base_url+'/kasir/store');
+        $('#update-order').html('');
+
+        if(id != '')
+        {
+            clearTimeout(timer)
+            timer = setTimeout(function() {
+                $.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: base_url + '/kasir/'+id,    
+                    // data:{'order_id':id},
+                    // processData: false,
+                    // contentType: false,
+                    dataType: "json",
+                    beforeSend: function()
                     {
-                        $('#customer-name').val(data.customer_name);
-                        $('#customer-name').prop('disabled', true);
+                        $('.spinner').removeClass('d-none');
+                    },
+                    success: function(data)
+                    {
+                        if(data.customer_name != undefined)
+                        {
+                            $('#customer-name').val(data.customer_name);
+                            $('#customer-name').prop('disabled', true);
+                        }
+                        if(data.mapping.length != 0)
+                        {
+                            var column = 0;
+                            var html = '';
+                            $.each(data.mapping, function(i, item)
+                            {
+                                if($(".tr-"+item["product_id"]).length)
+                                {
+                                    $(".tr-"+item["product_id"]).html('');
+                                    $(".tr-"+item["product_id"]).removeAttr('id class');
+                                }
+                                html += '<tr id="add_tr_'+column+'" class="clone_tr tr-'+item["product_id"]+'">';
+                                    html += '<td>';
+                                        html += '<div class="input-group input-spinner">';
+                                            html += '<div class="input-group-prepend">';
+                                                html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
+                                            html += '</div>';
+                                            html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items['+column+'][column][claim_qty]" id="claim_qty" max="45" readonly>';
+                                            html += '<div class="input-group-append">';
+                                                html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
+                                            html += '</div>';
+                                        html += '</div>';
+                                    html += '</td>';
+                                    html += '<td width="210">';
+                                        html += '<p class="mt-3">'+item["product"].product_display_name+'</p>';
+                                    html += '</td>';
+                                    html += '<td>';
+                                        html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_subtotal'])+'</p>';
+                                        html += '<input type="hidden" name="items[' + column +'][column][default_price]" value="'+item['default_price']+'" class="default_price">';
+                                        html += '<input type="hidden" value="'+item['order_subtotal']+'" name="items['+column+'][column][subtotal]" class="sub_price">';
+                                        html += '<input type="hidden" value="'+item['product_id']+'" name="items['+column+'][column][product_id]" class="product_id" value="'+item["id"]+'">';
+                                    html += '</td>';
+                                html += "</tr>";
+                                column++;
+                            })
+                            $('#append_order').html(html);
+                            $('.not-product').addClass('d-none');
+                            $('#form-order').removeAttr('action');
+                            $('#form-order').attr('action', base_url+'/kasir/'+id);
+                            $('#update-order').html('<input type="hidden" name="_method" value="PUT">');
+
+                            // var result_price = [];
+                            // $.each($('.sub_price'), function (i, price) {
+                            //     result_price.push(parseInt(price.defaultValue));
+                            // });
+                            // var slice = result_price.slice(0, -1);
+                            // total = slice.reduce(function(a,b){
+                            //             return a+b
+                            //         })
+
+                            total = data.total_order;
+                            $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(total)+'</b></h4>')
+                            $('#grandtotal').val(total);
+                            $('#total_add_qty').val(total);
+
+                            $('.form-btn').css("opacity", "1");
+                            $('.add-btn-simpan').addClass('btn-simpan');
+                            $('.add-btn-hapus').addClass('btn-hapus');
+                            $('.add-btn-bayar').addClass('btn-bayar');
+                        }
                     }
-
-                    
-                    console.log(data);
-                    // if(data.mapping.length != 0)
-                    // {
-                    //     var html = '';
-                    //     $.each(data.mapping, function(i, item)
-                    //     {
-                    //         html += '<tr class="tr_clone_items">';
-                    //             html += '<td>';
-                    //                 html += '<div class="input-group input-spinner">';
-                    //                     html += '<div class="input-group-prepend">';
-                    //                         html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
-                    //                     html += '</div>';
-                    //                     html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">';
-                    //                     html += '<div class="input-group-append">';
-                    //                         html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
-                    //                     html += '</div>';
-                    //                 html += '</div>';
-                    //             html += '</td>';
-                    //             html += '<td width="210">';
-                    //                 html += '<p class="mt-3">'+item["product"].product_display_name+'</p>';
-                    //             html += '</td>';
-                    //             html += '<td>';
-                    //                 html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_subtotal'])+'</p>';
-                    //                 html += '<input type="hidden" value="" class="default_price">';
-                    //                 html += '<input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">';
-                    //                 html += '<input type="hidden" name="items[##n##][column][product_id]" class="product_id" value="'+item["id"]+'">';
-                    //             html += '</td>';
-                    //         html += "</tr>";
-                    //     })
-
-                    //     $('#list_order').html(html);
-                    // }
-                }
-            });
-        }, 200)
+                });
+            }, 200)
+        }
 
     });
+
+    $(document).on('click', '.btn-simpan', function (e) {
+        $('.btnSubmit').click();
+
+    });
+
+    $(document).on('click', '.btn-bayar', function (e) {
+        $('.btnSubmit').click();
+
+    });
+
+    $(document).on('click', '.btn-hapus', function (e) {
+        if(confirm('Yakin ingin di hapus?'))
+        {
+            $('.not-product').removeClass('d-none');
+            $('#append_order').html('');
+            $("#order_id").val('').select2();
+            $('#customer-name').val('');
+            $('#total_add_qty').val(0);
+            $('#grandtotal').val(0);
+            $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>');
+            if($('.clone_tr').find('td').length)
+                $('#list_order').find('.clone_tr').remove();
+
+            $('#customer-name').prop('disabled', true);
+            $('.form-btn').css("opacity", "0.5");
+            $('.add-btn-simpan').removeClass('btn-simpan');
+            $('.add-btn-hapus').removeClass('btn-hapus');
+            $('.add-btn-bayar').removeClass('btn-bayar');
+        }
+    });
+
+    $(document).on('click', '.btn-list-order', function (e) {
+        console.log('ok')
+        window.location.href=base_url+'/kasir/order-list'
+    })
 });
 
 function buildItem(item) {
@@ -381,32 +468,5 @@ function buildItem(item) {
         html += "</div>";
     html += "</div>";
 
-    return html;
-}
-
-function itemOrder(item, data) {
-        html = '<tr class="tr_clone_items">';
-            html += '<td>';
-                html += '<div class="input-group input-spinner">';
-                    html += '<div class="input-group-prepend">';
-                        html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
-                    html += '</div>';
-                    html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items[##n##][column][claim_qty]" id="claim_qty" max="45">';
-                    html += '<div class="input-group-append">';
-                        html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
-                    html += '</div>';
-                html += '</div>';
-            html += '</td>';
-            html += '<td width="210">';
-                html += '<p class="mt-3"></p>';
-            html += '</td>';
-            html += '<td>';
-                html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_qty'])+'</p>';
-                html += '<input type="hidden" value="" class="default_price">';
-                html += '<input type="hidden" name="items[##n##][column][subtotal]" class="sub_price">';
-                html += '<input type="hidden" name="items[##n##][column][product_id]" class="product_id" value="'+item["id"]+'">';
-            html += '</td>';
-        html += "</tr>";
-    
     return html;
 }

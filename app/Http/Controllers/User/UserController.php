@@ -138,7 +138,7 @@ class UserController extends Controller
                 'password'  => !empty($request->input('password')) ? $request->input('password') : null,
                 'password_confirmation'  => !empty($request->input('password_confirmation')) ? $request->input('password_confirmation') : null,
                 'status'    => 1,
-                'store_id'  => $request->store_id,
+                'store_id'  => $request->store,
                 'meta'      => !empty($request->meta) ? $request->meta : array(),
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
@@ -374,7 +374,7 @@ class UserController extends Controller
                 'password'  => !empty($request->input('password')) ? $request->input('password') : null,
                 'password_confirmation'  => !empty($request->input('password_confirmation')) ? $request->input('password_confirmation') : null,
                 'role'      => $request->input('role'),
-                'store_id'  => $request->store_id,
+                'store_id'  => $request->store,
                 'status'    => !empty($request->status) ? 1 : 2,
                 'meta'      => !empty($request->meta) ? $request->meta : array(),
             ),

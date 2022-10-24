@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Product;
+namespace App\Http\Controllers\Order;
 
 use GlobalHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use ProductApi;
+use OrderApi;
 use UserApi;
+use Excel;
+use App\Exports\MappingExport;
 
-class ProductController extends Controller
+class OrderController extends Controller
 {
     public $successStatus = 200;
     public $limit = 25;
@@ -25,15 +27,34 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
+        if(!GlobalHelper::userCan($request,'read-orders'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
         }
 
-        return view('product.index', 
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/our-store',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'status' => 1
+                ))
+            ),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $storeApi = UserApi::postData($postParam);
+        $storeDecode = json_decode($storeApi);
+        
+        if (!empty($storeDecode->data->stores))
+            $stores = $storeDecode->data->stores;
+
+        return view('order.index', 
             [
-                'request' => $request
+                'request' => $request,
+                'stores' => !empty($stores) ? $stores : []
             ]
         );
     }
@@ -45,37 +66,7 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
-        {
-            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('products');
-        }
-
-        $user_token = $request->user_token;
-
-        $postParam = array(
-            'endpoint'  => 'v' . config('app.api_ver') . '/category',
-            'form_params' => array(
-                'filter' => json_encode(array(
-                    'status' => 1,
-                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
-                ))
-            ),
-            'headers' => ['Authorization' => 'Bearer ' . $user_token]
-        );
-
-        $catApi = ProductApi::postData($postParam);
-        $catDecode = json_decode($catApi);
-
-        if(!empty($catDecode->data->categories))
-            $categories = $catDecode->data->categories;
-
-        return view('product.edit', 
-            [
-                'request'    => $request,
-                'categories' => !empty($categories) ? $categories : array()
-            ]
-        );
+        //
     }
 
     /**
@@ -86,49 +77,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
-        {
-            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('products');
-        }
-
-        // dump($request->all());
-        $user_token = $request->user_token;
-
-        $validated = $request->validate([
-            'name'      => 'required|string|max:255',
-            'price'      => 'required',
-        ]);
-
-        $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/product/store',
-            'form_params' => array(
-                'product_name'        => $request->input('name'),
-                'product_price'       => (int)str_replace(',','',$request->input('price')),
-                'category_id'         => !empty($request->category_id) ? $request->category_id : '',
-                'product_description' => !empty($request->product_description) ? $request->product_description : '',
-                'company_id'          => !empty(session('company')['id']) ? session('company')['id'] : 1,
-                'meta'                => !empty($request->meta) ? GlobalHelper::maybe_unserialize($request->meta) : array()
-            ),
-            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
-        );
-
-        $productApi = ProductApi::postData( $postParam );
-        $dataDecode = json_decode($productApi);
-        // dd($dataDecode);
-
-        if(!empty($dataDecode->code) && $dataDecode->code != 200)
-        {
-            $error_message = $dataDecode->message;
-            \Session::flash('flash_error', $error_message);
-
-            return redirect('products/create')->withInput();
-        }
-        else
-        {
-            \Session::flash('flash_success', $dataDecode->message);
-            return redirect('products');
-        }
+        //
     }
 
     /**
@@ -139,7 +88,7 @@ class ProductController extends Controller
      */
     public function show(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request, 'read-product'))
+        if(!GlobalHelper::userCan($request, 'read-orders'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -148,37 +97,27 @@ class ProductController extends Controller
         $user_token = $request->user_token;
 
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/product/' . $id,
+            'endpoint'  => 'v'.config('app.api_ver').'/order/' . $id,
             'form_params' => array(),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        $productApi = ProductApi::getData($postParam);
-        $dataDecode = json_decode($productApi);
+        $orderApi = OrderApi::getData($postParam);
+        $dataDecode = json_decode($orderApi);
 
-        if(!empty($dataDecode) && $dataDecode->code !== 200)
+        if(!empty($dataDecode->data->order))
+            $order = $dataDecode->data->order;
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
         {
-            \Session::flash('flash_error', $dataDecode->message);
-            return redirect('products');
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
         }
 
-        if(!empty($dataDecode->data->product))
-        {
-            $product = $dataDecode->data->product;
-            if(!empty($product->metas))
-            {
-                foreach ($product->metas as $meta) 
-                {
-                    $product->meta[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
-                }
-            }
-        }
-        // dd($product);
-        return view('product.detail', 
+        return view('order.detail', 
             [
                 'request'   => $request,
-                'product'   => !empty($product) ? $product : array(),
-                'meta'      => !empty($product->meta) ? $product->meta : array(),
+                'order'   => !empty($order) ? $order : array(),
             ]
         );
     }
@@ -191,10 +130,10 @@ class ProductController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request,'update-product'))
+        if(!GlobalHelper::userCan($request,'update-orders'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('products');
+            return redirect('users/orders');
         }
 
         $user_token = $request->user_token;
@@ -205,7 +144,7 @@ class ProductController extends Controller
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        $productApi = ProductApi::getData($postParam);
+        $productApi = OrderApi::getData($postParam);
         $dataDecode = json_decode($productApi);
 
         if(!empty($dataDecode) && $dataDecode->code !== 200)
@@ -224,7 +163,7 @@ class ProductController extends Controller
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        $catApi = ProductApi::postData( $catParam );
+        $catApi = OrderApi::postData( $catParam );
         $catDecode = json_decode($catApi);
 
         if(!empty($catDecode->data->categories))
@@ -242,10 +181,10 @@ class ProductController extends Controller
             }
         }
 
-        return view('product.edit',
+        return view('order.edit',
             [
                 'request'    => $request,
-                'product'    => !empty($product) ? $product : array(),
+                'orders'    => !empty($product) ? $product : array(),
                 'categories' => !empty($categories) ? $categories : array(),
                 'metas'      => !empty($product->meta) ? $product->meta : array()
             ]
@@ -261,10 +200,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
+        if(!GlobalHelper::userCan($request,'read-orders'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('products');
+            return redirect('users/orders');
         }
 
         $user_token = $request->user_token;
@@ -287,7 +226,7 @@ class ProductController extends Controller
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        $userApi = ProductApi::updateData( $putParam );
+        $userApi = OrderApi::updateData( $putParam );
         $dataDecode = json_decode($userApi);
 
         if(!empty($dataDecode->code) && $dataDecode->code != 200)
@@ -295,12 +234,12 @@ class ProductController extends Controller
             $error_message = $dataDecode->message;
             \Session::flash('flash_error', $error_message);
 
-            return redirect('products/'.$id)->withInput();
+            return redirect('orders/'.$id)->withInput();
         }
         else
         {
             \Session::flash('flash_success', $dataDecode->message);
-            return redirect('products');
+            return redirect('orders');
         }
     }
 
@@ -319,7 +258,7 @@ class ProductController extends Controller
 
         try
         {
-            if(!GlobalHelper::userCan($request,'update-product'))
+            if(!GlobalHelper::userCan($request,'update-orders'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -335,7 +274,7 @@ class ProductController extends Controller
                 'headers' => [ 'Authorization' => 'Bearer '. $user_token ]
             );
 
-            $productApi = ProductApi::updateData( $putParam );
+            $productApi = OrderApi::updateData( $putParam );
 
             $dataDecode = json_decode($productApi);
             if(!empty($dataDecode->code) && $dataDecode->code != 200)
@@ -364,7 +303,7 @@ class ProductController extends Controller
 
         try
         {
-            if(!GlobalHelper::userCan($request,'update-product'))
+            if(!GlobalHelper::userCan($request,'update-orders'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -380,7 +319,7 @@ class ProductController extends Controller
                 'headers' => [ 'Authorization' => 'Bearer '. $user_token ]
             );
 
-            $productApi = ProductApi::updateData( $putParam );
+            $productApi = OrderApi::updateData( $putParam );
 
             $dataDecode = json_decode($productApi);
             if(!empty($dataDecode->code) && $dataDecode->code != 200)
@@ -399,7 +338,7 @@ class ProductController extends Controller
         }
     }
 
-    public function getProductList(Request $request)
+    public function getOrderList(Request $request)
     {
         $return = array(
             'data' => '',
@@ -409,7 +348,7 @@ class ProductController extends Controller
             'sEcho' => (int)$request->input('sEcho',true)
         );
 
-        if(!GlobalHelper::userCan($request,'read-product'))
+        if(!GlobalHelper::userCan($request,'read-orders'))
         {
             $return['error'] = 'You don\'t have permission to access the page you requested.';
             return response()->json($return, $this->successStatus);
@@ -423,35 +362,46 @@ class ProductController extends Controller
         $sort_by = $request->input('iSortCol_0',true);
         switch($sort_by)
         {
-            case 4:$order_by='status';break;
-            case 3:$order_by='updated_at';break;
-            case 2:$order_by='created_at';break;
-            // case 0:$order_by='id';break;
-            default:$order_by='product_display_name';break;
+            case 7:$order_by='status';break;
+            case 6:$order_by='updated_at';break;
+            case 5:$order_by='created_at';break;
+            case 4:$order_by='store_id';break;
+            case 3:$order_by='total_order';break;
+            case 2:$order_by='customer_name';break;
+            case 0:$order_by='id';break;
+            default:$order_by='order_code';break;
         }
 
         $order = $request->input('sSortDir_0',true);
 
         $postParam = array(
-            'endpoint'  => 'v'.config('app.api_ver').'/product',
+            'endpoint'  => 'v'.config('app.api_ver').'/order',
             'form_params' => array(
                 'page' => $page,
                 'per_page' => $this->limit,
                 'sort_by' => $order_by,
                 'keyword' => '',
                 'sort' => $order,
-                'filter' => json_encode(array(
+                'filter' => array(
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
-                )),
+                ),
                 'date_filter' => null
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
-        if(!empty($keyword = $request->input('sSearch')))
-            $postParam['form_params']['keyword'] = $keyword;
+        if(!empty($request->input('sSearch')))
+            $postParam['form_params']['keyword'] = $request->input('sSearch');
+        if(!empty($request->store))
+            $postParam['form_params']['filter']['store_id'] = $request->store;
+        if($request->user_role[0] == 'kasir')
+            $postParam['form_params']['filter']['store_id'] = $request->store_id;
+        if(!empty($request->status))
+            $postParam['form_params']['filter']['status'] = $request->status;
+        if(!empty($postParam['form_params']['filter']))
+            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
 
-        $productApi = ProductApi::postData( $postParam );
+        $productApi = OrderApi::postData( $postParam );
         $dataDecode = json_decode($productApi);
 
         if(!empty($dataDecode->code))
@@ -459,48 +409,38 @@ class ProductController extends Controller
             switch($dataDecode->code)
             {
                 case 200:  
-                    if(!empty($dataDecode->data) && !empty($dataDecode->data->products))
+                    if(!empty($dataDecode->data) && !empty($dataDecode->data->orders))
                     {
                         $return['all'] = $return['iTotalRecords'] = $return['iTotalDisplayRecords'] = $dataDecode->data->total_records;
 
-                        foreach($dataDecode->data->products as $product)
+                        foreach($dataDecode->data->orders as $order)
                         {
-                            $product->created_html = date('M, d-Y H:i:s', strtotime($product->created_at));
-                            $product->updated_html = date('M, d-Y H:i:s', strtotime($product->updated_at));
+                            $order->created_html = date('M, d-Y H:i:s', strtotime($order->created_at));
+                            $order->updated_html = date('M, d-Y H:i:s', strtotime($order->updated_at));
+                            $order->store_html = $order->store->store_name;
+                            $order->subtotal_html = 'Rp. '.number_format($order->total_order);
 
-                            switch($product->status)
+                            switch($order->status)
                             {
                                 case 2:
-                                    $product->status_html = '<span class="badge badge-info">' . $product->status_label . '</span>';
+                                    $order->status_html = '<span class="badge badge-info">' . $order->status_label . '</span>';
                                     break;
-                                case 0:
-                                    $product->status_html = '<span class="badge badge-danger">' . $product->status_label . '</span>';
+                                case 3:
+                                    $order->status_html = '<span class="badge badge-warning">' . $order->status_label . '</span>';
                                     break;
                                 default:
-                                    $product->status_html = '<span class="badge badge-success">' . $product->status_label . '</span>';
+                                    $order->status_html = '<span class="badge badge-success">' . $order->status_label . '</span>';
                                     break;
                             }
 
-                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-products') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
-                                $product->update = 1;
+                            // if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-orders') && !empty(session('company')['id']) && session('company')['id'] == $order->company_id))
+                            //     $order->update = 1;
 
-                            if (GlobalHelper::userRole($request, 'superadmin') || (GlobalHelper::userCan($request, 'delete-item-products') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
-                                $product->delete = 1;
-                            
-                            if(!empty($product->metas))
-                            {
-                                $metas = array();
-                                foreach($product->metas as $meta)
-                                    $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
-
-                                if(!empty($metas['image']))
-                                    $product->image_html = '<div style="background-image: url(' . $metas['image']['media_path'] . '); height: 75px; width: 75px; background-repeat: no-repeat;background-position: center;background-repeat: no-repeat;background-size: cover;"></div>';
-                            }
+                            // if (GlobalHelper::userRole($request, 'superadmin') || (GlobalHelper::userCan($request, 'delete-item-orders') && !empty(session('company')['id']) && session('company')['id'] == $order->company_id))
+                            //     $order->delete = 1;
                         }
-
-                        $return['data'] = $dataDecode->data->products;
-                        // dd($return['data']);
-                        // unset($return['error']);
+                        
+                        $return['data'] = $dataDecode->data->orders;
                     }
                     break;
                 default:
@@ -511,5 +451,100 @@ class ProductController extends Controller
         }
 
         return response()->json($return, $this->successStatus);
+    }
+
+    public function export(Request $request)
+    {
+        if (!GlobalHelper::userCan($request, 'read-orders')) {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        // dump($request->all());
+
+        $name_xls = 'Order_Transaction_';
+
+        $postParam = [
+            'endpoint' => 'v' . config('app.api_ver') . '/order',
+            'form_params' => [
+                'keyword' => '',
+                'sort_by' => 'updated_at',
+                'sort' => 'desc',
+            ],
+            'headers' => ['Authorization' => 'Bearer ' . $request->user_token]
+        ];
+
+        $name_xls .= date('d_M_Y_H_i') . '.xlsx';
+
+        if (!empty($request->keyword))
+            $postParam['form_params']['keyword'] = $request->keyword;
+        if (!empty(session('company')['id']))
+            $postParam['form_params']['filter']['company_id'] = session('company')['id'];
+        if ($request->user_role[0] == 'kasir')
+            $postParam['form_params']['filter']['store_id'] = $request->store_id;
+        if (!empty($request->filter_store))
+            $postParam['form_params']['filter']['store_id'] = $request->filter_store;
+        if (!empty($request->filter_status))
+            $postParam['form_params']['filter']['status'] = $request->filter_status;
+        if (!empty($postParam['form_params']['filter']))
+            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
+
+        // dump($postParam);
+
+        $orderApi = OrderApi::postData($postParam);
+        $dataDecode = json_decode($orderApi);
+
+        // dd($dataDecode);
+
+        $exports = array(
+            array(
+                'order_code',
+                'customer_name',
+                'product',
+                'total_order',
+                'store',
+                'updated_at',
+                'updated_name',
+                'status'
+            )
+        );
+
+        $rows = array();
+
+        if (!empty($dataDecode->data) && !empty($dataDecode->data->orders)) {
+            $orders = $dataDecode->data->orders;
+            foreach ($orders as $order) {
+
+                $product = '';
+                foreach($order->mapping as $item)
+                {
+                    $product .= '['.$item->product->product_name . '],';
+                }
+
+                $rows[] = array(
+                    'order_code'    => !empty($order->order_code) ? $order->order_code : '',
+                    'customer_name' => !empty($order->customer_name) ? $order->customer_name : '',
+                    'total_order'   => !empty($order->total_order) ? $order->total_order : '',
+                    'product'       => !empty($product) ? $product : '',
+                    'store'         => !empty($order->store->store_name) ? $order->store->store_name : '',
+                    'updated_at'    => !empty($order->updated_at) ? date('Y-m-d H:i:s', strtotime($order->updated_at)) : '',
+                    'updated_name'  => !empty($order->updated_name) ? $order->updated_name : '',
+                    'status'        => !empty($order->status_label) ? $order->status_label : '',
+                );
+                
+            }
+
+            if (!empty($rows)) {
+                foreach ($rows as $row){
+                    $exports[] = $row;
+                }
+            }
+
+            $export = new MappingExport($exports);
+            return Excel::download($export, $name_xls);
+        } else {
+            \Session::flash('flash_error', 'Nothing to Export');
+            return redirect('orders');
+        }
     }
 }

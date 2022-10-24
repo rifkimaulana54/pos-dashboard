@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use GlobalHelper;
 use ProductApi;
 use OrderApi;
+use UserApi;
 
 class KasirController extends Controller
 {
@@ -32,6 +33,22 @@ class KasirController extends Controller
         // dd($request);
 
         $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/detail/'.$request->user_id,
+            'form_params' => array(),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $userApi = UserApi::getData($postParam);
+        $userDecode = json_decode($userApi);
+
+        if (!empty($userDecode->data->user))
+            $user = $userDecode->data->user;
+        
+        if(!empty($user->metas))
+            foreach ($user->metas as $meta) 
+                $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
 
         $postParam = array(
             'endpoint'  => 'v' . config('app.api_ver') . '/category',
@@ -71,6 +88,7 @@ class KasirController extends Controller
         // dd($orderDecode);
         return view('kasir.index', [
             'request' => $request,
+            'metas' => !empty($metas) ? $metas : array(),
             'categories' => !empty($categories) ? $categories : array(),
             'count_orders' => !empty($orderDecode->data->total_records) ? $orderDecode->data->total_records : array(),
             'orders' => !empty($orders) ? $orders : array(),
@@ -265,9 +283,7 @@ class KasirController extends Controller
         if(!empty($request->category_id))
             $postParam['form_params']['filter']['category_id'] = $request->category_id;
         if(!empty($postParam['form_params']['filter']))
-        {
             $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
-        }
         $catApi = ProductApi::postData($postParam);
         $dataDecode = json_decode($catApi);
 

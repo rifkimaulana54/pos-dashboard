@@ -244,78 +244,7 @@ return [
             'icon' => 'fas fa-fw fa-home'
             // 'can'  => 'manage-blog',
         ],
-        // [
-        //     'text'    => 'Armada',
-        //     'icon'    => 'fas fa-fw fa-bus',
-        //     'active' => ['fleets'],
-        //     'submenu' => [
-        //         [
-        //             'text' => 'List Armada',
-        //             'url'  => 'fleets',
-        //             'active' => ['fleets', 'fleets', 'regex:@^fleets/[0-9]+$@'],
-        //         ],
-        //         [
-        //             'text' => 'Tambah Armada',
-        //             'url'  => 'fleets/create',
-        //             'active' => ['fleets/create', 'fleets/create', 'regex:@^fleets/create[0-9]+$@'
-        //             ],
-        //         ],
-        //     ],
-        // ],
-        // [
-        //     'text'    => 'Order',
-        //     'icon'    => 'fas fa-shopping-cart',
-        //     'active' => ['orders'],
-        //     'submenu' => [
-        //         [
-        //             'text' => 'List Order',
-        //             'url'  => 'orders',
-        //             'active' => ['orders', 'orders', 'regex:@^orders/[0-9]+$@'],
-        //         ],
-        //         [
-        //             'text' => 'Tambah Order',
-        //             'url'  => 'orders/create',
-        //             'active' => ['orders/create', 'orders/create', 'regex:@^orders/create[0-9]+$@'
-        //             ],
-        //         ],
-        //     ],
-        // ],
-        // [
-        //     'text'    => 'Inventory',
-        //     'icon'    => 'fas fa-fw fa-cubes',
-        //     'active' => ['inventorys'],
-        //     'submenu' => [
-        //         [
-        //             'text' => 'List Inventory',
-        //             'url'  => 'inventorys',
-        //             'active' => ['inventorys', 'inventorys', 'regex:@^inventorys/[0-9]+$@'],
-        //         ],
-        //         [
-        //             'text' => 'Tambah Inventory',
-        //             'url'  => 'inventorys/create',
-        //             'active' => ['inventorys/create', 'inventorys/create', 'regex:@^inventorys/create[0-9]+$@'
-        //             ],
-        //         ],
-        //     ],
-        // ],
-        // [
-        //     'text'    => 'Driver',
-        //     'icon'    => 'fas fa-fw fa-id-card',
-        //     'active' => ['drivers'],
-        //     'submenu' => [
-        //         [
-        //             'text' => 'List Driver',
-        //             'url'  => 'drivers',
-        //             'active' => ['drivers', 'drivers', 'regex:@^drivers/[0-9]+$@'],
-        //         ],
-        //         [
-        //             'text' => 'Tambah Inventory',
-        //             'url'  => 'drivers/create',
-        //             'active' => ['drivers/create', 'drivers/create', 'regex:@^drivers/create[0-9]+$@'
-        //             ],
-        //         ],
-        //     ],
-        // ],
+        
         [
             'header' => 'PRODUCT MANAGEMENT',
         ],
@@ -324,6 +253,10 @@ return [
             'icon'    => 'fas fa-fw fa-tags',
             'active'  => ['categories'],
             'url'     => 'categories',
+            'can'   => [
+                'read-cms-user',
+                'read-cms-acl-role',
+            ]
         ],
         [
             'text'    => 'Product',
@@ -335,10 +268,10 @@ return [
             'header' => 'TRANSACTION',
         ],
         [
-            'text'    => 'Invoice Order',
+            'text'    => 'Order List',
             'icon'    => 'fas fa-fw fa-file-invoice-dollar',
-            'active'  => ['invoice-orders'],
-            'url'     => 'invoice-orders',
+            'active'  => ['orders'],
+            'url'     => 'orders',
         ],
         [
             'header' => 'USER MANAGEMENT',

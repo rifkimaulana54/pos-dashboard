@@ -1,5 +1,7 @@
 @extends('adminlte::page-kasir')
 
+@section('title', 'POS - Kasir')
+
 @section('content_header')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
@@ -8,15 +10,32 @@
         <div class="row">
             <div class="col">
             {{-- <i class="fas fa-fw fa-arrow-left"></i>  --}}
-                <h5 class="m-0"><b>POINT OF SALES</b></h5>
+                <h5 class="m-0"><b>POS</b></h5>
             </div>
             <div class="col text-center">
-            {{-- <i class="fas fa-fw fa-arrow-left"></i>  --}}
                 <h5 class="m-0"><b>Logo</b></h5>
             </div>
-            <div class="col text-right">
-            {{-- <i class="fas fa-fw fa-arrow-left"></i>  --}}
-                <h5 class="m-0"><b>Username</b></h5>
+            <div class="col text-right dropdown">
+                <a href="#" class="m-0 dropdown-toggle text-light" id="kasirDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><b>{{$request->user_name}} </b><img src="@if(!empty($metas['profile_pic'])){{$metas['profile_pic']['media_path']}}@else{{asset('assets/static/pp.png')}}@endif" class="float-rigth rounded-circle" alt="" width="30" height="30"></a>
+                <div class="dropdown-menu" aria-labelledby="kasirDropdown">
+                    <a class="dropdown-item" href="/" target="_blank"><i class="fas fa-fw fa-home"></i> Dashboard</a>
+                    @php
+                        $logout_url = View::getSection('logout_url') ?? config('adminlte.logout_url', 'logout') 
+                    @endphp
+
+                    @if (config('adminlte.use_route_url', false))
+                        @php $logout_url = $logout_url ? route($logout_url) : '' @endphp
+                    @else
+                        @php $logout_url = $logout_url ? url($logout_url) : '' @endphp
+                    @endif
+                    <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-fw fa-power-off text-danger"></i> Logout</a>
+                    <form id="logout-form" action="{{ $logout_url }}" method="POST" style="display: none;">
+                        @if(config('adminlte.logout_method'))
+                            {{ method_field(config('adminlte.logout_method')) }}
+                        @endif
+                        {{ csrf_field() }}
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
@@ -46,7 +65,7 @@
                     </div>
                 </div>
                 <!-- Grid column -->
-                <div class="col-md-12 pt-2 example-1 scrollbar-deep-purple bordered-deep-purple thin border-top border-dark bg-light" style="margin-top: 15px ">
+                <div class="col-md-12 pt-2 example-1 scrollbar-deep-purple thin border-top border-dark bg-light" style="margin-top: 15px ">
                     <div class="row pt-2 product-wrapper">
                         {{-- @foreach ($products as $product)
                             <div class="col-md-2.5 ml-3">

@@ -438,7 +438,7 @@ tr.shown td.details-control {
 .example-1 {
     position: relative;
     overflow-y: scroll;
-    height: 78vh;
+    height: 77vh;
 }
 
 .product-show {
@@ -493,7 +493,7 @@ tr.shown td.details-control {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 64.7vh;
+    height: 63.7vh;
 }
 
 .text-price {

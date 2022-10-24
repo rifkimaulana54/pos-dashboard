@@ -61,14 +61,19 @@
         @endif
 
         {{-- User menu footer --}}
-        <li class="user-footer">
             @if($profile_url)
-                <a href="{{ $profile_url }}" class="btn btn-default btn-flat">
+                <a href="{{ $profile_url }}" class="dropdown-item">
                     <i class="fa fa-fw fa-user text-lightblue"></i>
                     {{ __('adminlte::menu.profile') }}
                 </a>
             @endif
-            <a class="btn btn-default btn-flat float-right @if(!$profile_url) btn-block @endif"
+            @if(request()->user_role[0] == 'kasir')
+                <a href="{{ asset('/kasir') }}" class="dropdown-item">
+                    <i class="fa fa-fw fa-store text-lightblue"></i>
+                    POS
+                </a>
+            @endif
+            <a class="dropdown-item @if(!$profile_url) btn-block @endif"
                href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa fa-fw fa-power-off text-red"></i>
                 {{ __('adminlte::adminlte.log_out') }}
@@ -79,7 +84,6 @@
                 @endif
                 {{ csrf_field() }}
             </form>
-        </li>
 
     </ul>
 

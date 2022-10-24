@@ -156,7 +156,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">{{__('Store')}} *</label>
-                                    <select class="form-control select2" required name="store_id" style="width: 100%">
+                                    <select class="form-control select2" required name="store" style="width: 100%">
                                         <option value="">--- {{__('Select Store')}} ---</option>
                                         @if (!empty($stores))
                                             @foreach ($stores as $store)

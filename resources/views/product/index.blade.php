@@ -26,7 +26,8 @@
                 <div class="card">
                     <div class="card-header">
                         @if (GlobalHelper::userRole($request,'superadmin'))
-                        <a class="btn btn-primary btn-sx" href="{{ url('products/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Product')}}</a>
+                            <a class="btn btn-primary btn-sx" href="{{ url('products/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Product')}}</a>
+                            <a href="{{ url('/products/upload')}}" class="btn btn-success float-right" style="margin-right: 10px"><i class="fa fa-fw fa-upload"></i> Import</a>
                         @endif
                     </div>
                     <!-- /.card-header -->

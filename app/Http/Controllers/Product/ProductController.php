@@ -5,8 +5,14 @@ namespace App\Http\Controllers\Product;
 use GlobalHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AssetApi;
+use File;
+
 use ProductApi;
 use UserApi;
+use Excel;
+use stdClass;
+
 
 class ProductController extends Controller
 {
@@ -45,7 +51,7 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
+        if(!GlobalHelper::userCan($request,'create-product'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('products');
@@ -86,7 +92,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        if(!GlobalHelper::userCan($request,'read-product'))
+        if(!GlobalHelper::userCan($request,'create-product'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('products');
@@ -295,7 +301,7 @@ class ProductController extends Controller
             $error_message = $dataDecode->message;
             \Session::flash('flash_error', $error_message);
 
-            return redirect('products/'.$id)->withInput();
+            return redirect('products')->withInput();
         }
         else
         {
@@ -511,5 +517,281 @@ class ProductController extends Controller
         }
 
         return response()->json($return, $this->successStatus);
+    }
+
+    public function upload(Request $request)
+    {
+        if(!GlobalHelper::userCan($request,'create-product'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        return view('product.upload', [
+            'request' => $request
+        ]);
+    }
+
+    public function confirm_upload(Request $request)
+    {
+        if(!GlobalHelper::userCan($request,'create-product'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+
+        $validated = $request->validate([
+            'file' => 'required|mimes:xls,xlsx'
+        ]);
+
+        $rows = array();
+        if($request->hasFile('file'))
+        {
+            $file = $request->file('file');
+            $filename = $file->getClientOriginalName();
+            $filepath = $file->getPathName();
+            $filetype = $file->getMimeType();
+
+            $postParam = array(
+                'endpoint'  => 'v'.config('app.api_ver').'/store',
+                'form_params' => array(
+                    'multipart' => [
+                        [
+                            'name'      => 'file',
+                            'filename'  => $filename,
+                            'Mime-Type' => $filetype,
+                            'contents'  => fopen( $filepath, 'r' )
+                        ]
+                    ]
+                ),
+                'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+            );
+
+            $assetApi = AssetApi::postData( $postParam );
+
+            $dataDecode = json_decode($assetApi);
+
+            if(!empty($dataDecode->data) && !empty($dataDecode->data->media))
+                $media = $dataDecode->data->media;
+
+        }
+
+        if($request->hasfile('file'))
+        {
+            if(!File::isDirectory(public_path('excel')))
+            {
+                File::makeDirectory(public_path('excel'));
+            }
+
+            $fileNameWithExt = $request->file('file')->getClientOriginalName();
+
+            $filename = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            $fileExt = $request->file('file')->getClientOriginalExtension();
+
+            $fileNameToStore = time().'.'.$fileExt;
+
+            $path = $request->file('file')->storeAs('public/excel',$fileNameToStore);
+
+            $savePath = "app/".$path;
+
+            $request->session()->put('upload_excel', $savePath);
+
+            return redirect('products/upload/show');
+
+        }
+
+        \Session::flash('flash_error', 'Excel File not found.');
+        return redirect('products');
+    }
+
+    public function show_upload(Request $request)
+    {
+        if(!GlobalHelper::userCan($request,'create-product'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('product');
+        }
+
+        if (empty( $excel = session('upload_excel')))
+        {
+            \Session::flash('flash_error', 'Excel File not found.');
+            return redirect('product');
+        }
+
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/product',
+            'form_params' => array(),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+        
+        $posApi = ProductApi::postData( $postParam );
+        $dataDecode = json_decode($posApi);
+
+        
+        $product_exist = !empty($dataDecode->data->products) ? array_column($dataDecode->data->products, 'product_display_name', 'id') : array();
+
+        $rows = Excel::toArray(new stdClass, storage_path($excel));
+
+        $datas = array();
+        $error = array();
+        $total = array();
+        $product_exist_excel = array();
+        $er = false;
+
+        foreach($rows[0] as $d => $data)
+        {
+            if ($d > 0) 
+            {
+                $total[$d] = 0;
+                $empty = 0;
+
+                foreach($data as $c => $val)
+                {
+                    if(empty($val) && $c < 4)
+                        $empty++;
+                }
+
+                if($empty == 4)
+                    continue;
+
+                if(empty($data[0]) || empty($data[1]) || empty($data[3]))
+                {
+                    $error[$d][] = 'Mohon isi yang tertanda bintang';
+                    $er = true;
+                }
+
+                if(!empty($data[1]) && in_array($data[1], $product_exist))
+                {
+                    $error[$d][] = "Nama product sudah ada didatabase";
+                    $er = true;
+                }
+
+                if(!empty($data[1]) && in_array($data[1], $product_exist_excel))
+                {
+                    $error[$d][] = "Product sudah ada diexcel";
+                    $er = true;
+                }
+
+                $data[3] = 'Rp. '.number_format($data[3]);
+
+                if(!empty($error[$d]))
+                    $data[4] = '<strong>'.implode(', ',$error[$d]).'</strong>';
+                else
+                    $data[4] = '';
+
+                if(!empty($data[1]))
+                    $product_exist_excel[] = $data[1];
+            }
+
+            $datas[] = $data;
+        }
+
+        $datas[0][4] = 'Error Info';
+
+        return view('product.upload_show',[
+            'rows' => $datas,
+            'request' => $request
+        ]);
+    }
+
+    public function finish_upload(Request $request)
+    {        
+        if(!GlobalHelper::userCan($request,'create-product'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('products');
+        }
+
+        $user_token = $request->user_token;
+
+        if(!empty($request->input('cancel')))
+        {
+            // dd(session('upload_excel'));
+            $request->session()->forget('upload_excel');
+            return redirect('/products/upload');
+        }
+
+        if (empty( $excel = session('upload_excel')))
+        {
+            \Session::flash('flash_error', 'Excel File not found.');
+            return redirect('/products/upload');
+        }
+
+        $rows = \Excel::toArray(new stdClass, storage_path($excel));
+
+        $user_token = $request->user_token;
+
+        $data_mapping = array();
+
+        foreach($rows[0] as $d => $data)
+        {
+            if ($d > 0) 
+            {   
+                $empty = 0;
+
+                foreach($data as $c => $val)
+                {
+                    if(empty($val) && $c < 4)
+                        $empty++;
+                }
+
+                if($empty == 4)
+                    continue;
+
+                $data_mapping[] = array(
+                    'category_id' => $data[0],
+                    'product_name' => $data[1],
+                    'product_description' => $data[2],
+                    'product_price' => $data[3],
+                );
+            }
+        }
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/product/import',
+            'form_params' => array(
+                'products'     => json_encode($data_mapping),
+                'company_id' => !empty(session('company')['id']) ? session('company')['id'] : 1
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $postApi = ProductApi::postData( $postParam );
+        $dataDecode = json_decode($postApi);
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            // $error_message = $dataDecode->data->error;
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return redirect('products')->withInput();
+        }
+        else
+        {
+            $error_message = $dataDecode->data->error;
+            $success_message[] = $dataDecode->message;
+        }
+
+        if(!empty($error_message))
+        {
+            return $this->errorUpload($request, $error_message);
+        }
+        else
+        {
+            if (!empty($success_message)) 
+            {
+                $message_success = '<strong>'.implode(', ',array_unique($success_message)).'</strong>';
+                \Session::flash('flash_success', $message_success);
+
+                $request->session()->forget('upload_excel');
+
+                return redirect('products');
+            }
+        }
     }
 }

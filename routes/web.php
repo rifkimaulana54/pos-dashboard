@@ -59,6 +59,10 @@ Route::post('/categories/getCategoryList', [App\Http\Controllers\Product\Categor
 Route::resource('/categories', App\Http\Controllers\Product\CategoryController::class);
 
 //product
+Route::get('/products/upload', [App\Http\Controllers\Product\ProductController::class, 'upload']);
+Route::get('/products/upload/show', [App\Http\Controllers\Product\ProductController::class, 'show_upload']);
+Route::post('/products/upload/finish', [App\Http\Controllers\Product\ProductController::class, 'finish_upload']);
+Route::post('/products/upload/confirm', [App\Http\Controllers\Product\ProductController::class, 'confirm_upload']);
 Route::post('/products/{id}/restore', [App\Http\Controllers\Product\ProductController::class, 'restore']);
 Route::post('/products/getProductList', [App\Http\Controllers\Product\ProductController::class, 'getProductList']);
 Route::resource('/products', App\Http\Controllers\Product\ProductController::class);

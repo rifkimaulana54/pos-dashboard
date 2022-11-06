@@ -120,7 +120,7 @@ class KasirController extends Controller
         }
 
         $user_token = $request->user_token;
-        // dump($request->all());
+        // dd($request->all());
 
         $item_orders = [];
         if(!empty($request->items))
@@ -151,11 +151,9 @@ class KasirController extends Controller
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
-        // dd($postParam);
 
         $orderApi = OrderApi::postData( $postParam );
         $dataDecode = json_decode($orderApi);
-        dd($dataDecode);
 
         if(!empty($dataDecode->code) && $dataDecode->code != 200)
         {
@@ -167,7 +165,14 @@ class KasirController extends Controller
         else
         {
             \Session::flash('flash_success', $dataDecode->message);
-            return redirect('kasir/order-list');
+            if(!empty($request->btn_bayar))
+            {
+                return redirect('kasir/order-list');
+            }
+            else
+            {
+                return redirect('kasir');
+            }
         }
     }
 
@@ -269,6 +274,8 @@ class KasirController extends Controller
             'endpoint'  => 'v' . config('app.api_ver') . '/product',
             'form_params' => array(
                 'keyword' => '',
+                'sort_by' => 'product_name',
+                'sort'    => 'asc',
                 'filter' => array(
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
                 ),
@@ -299,7 +306,32 @@ class KasirController extends Controller
 
     public function orderList(Request $request)
     {
+        if(!GlobalHelper::userCan($request, 'read-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/detail/'.$request->user_id,
+            'form_params' => array(),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $userApi = UserApi::getData($postParam);
+        $userDecode = json_decode($userApi);
+
+        if (!empty($userDecode->data->user))
+            $user = $userDecode->data->user;
+        
+        if(!empty($user->metas))
+            foreach ($user->metas as $meta) 
+                $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
+
         return view('kasir.order-list', [
+            'metas' => !empty($metas) ? $metas : array(),
             'request' => $request,
         ]);
     }

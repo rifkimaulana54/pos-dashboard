@@ -1549,12 +1549,15 @@ function swalConfirm(title='Apakah anda yakin?',showCancelButton=true, confirmBt
     })
 }
 
-function swalConfirmSubmit(cur, e_type, text="Apakah anda yakin?")
+function swalConfirmSubmit(cur, e_type, text="Apakah anda yakin?", spinner="false")
 {
+    $('.spinner').addClass('d-none');
     swalConfirm(text).then((result) => {
         if(result.isConfirmed)
         {
             $(cur).trigger(e_type, {'send': true});
+            if (spinner == true)
+                $('.spinner').removeClass('d-none');
         }
     // else // if(result.isDismiss)
     //   return false;

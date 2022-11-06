@@ -27,7 +27,7 @@ $(document).ready(function() {
             if (!localParams.send && $('#form-order')[0].checkValidity()) 
             {
                 e.preventDefault();
-                swalConfirmSubmit(cur, e.type);
+                swalConfirmSubmit(cur, e.type, 'Apakah anda yakin?', true);
             }
             // return false;
         })
@@ -43,10 +43,10 @@ $(document).ready(function() {
                 dataType: "json",
                 url: base_url + '/kasir/getProductList/',    
                 dataType: "json",
-                beforeSend: function()
-                {
-                    $('.spinner').removeClass('d-none');
-                },
+                // beforeSend: function()
+                // {
+                //     // $('.spinner').removeClass('d-none');
+                // },
                 success: function(data)
                 {
                     // console.log(data);
@@ -72,8 +72,8 @@ $(document).ready(function() {
 
         var $value = $(this).val();
 
-        clearTimeout(timer)
-        timer = setTimeout(function() {
+        // clearTimeout(timer)
+        // timer = setTimeout(function() {
             $.ajax({
                 type: "POST",
                 dataType: "json",
@@ -84,7 +84,7 @@ $(document).ready(function() {
                 dataType: "json",
                 beforeSend: function()
                 {
-                    $('.spinner').removeClass('d-none');
+                    $('.spinner').addClass('d-none');
                 },
                 success: function(data)
                 {
@@ -101,7 +101,7 @@ $(document).ready(function() {
                     }
                 }
             });
-        }, 200)
+        // }, 200)
 
         // $(document).on('change', '.dd', function(e) 
         // {
@@ -127,39 +127,36 @@ $(document).ready(function() {
             $('.icon').html('<i class="fas fa-fw fa-search"></i>')
         });
         
-        clearTimeout(timer)
-        timer = setTimeout(function() {
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: base_url + '/kasir/getProductList/',    
-                data:{'search': $value},
-                // processData: false,
-                // contentType: false,
-                dataType: "json",
-                beforeSend: function()
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: base_url + '/kasir/getProductList/',    
+            data:{'search': $value},
+            // processData: false,
+            // contentType: false,
+            dataType: "json",
+            beforeSend: function()
+            {
+                $('.spinner').addClass('d-none');
+            },
+            success: function(data)
+            {
+                if(data.data.length != 0)
                 {
-                    $('.spinner').removeClass('d-none');
-                },
-                success: function(data)
-                {
-                    if(data.data.length != 0)
+                    var output = '';
+                    $.each(data.data, function(i, product)
                     {
-                        var output = '';
-                        $.each(data.data, function(i, product)
-                        {
-                            output += buildItem(product);
-                        })
+                        output += buildItem(product);
+                    })
 
-                        $('.product-wrapper').html(output);
-                    } 
-                    else
-                    {
-                        $('.product-wrapper').html('<p class="m-auto">Produk <b>#'+$value+'</b> tidak di temukan</p>');
-                    }
+                    $('.product-wrapper').html(output);
+                } 
+                else
+                {
+                    $('.product-wrapper').html('<p class="m-auto">Produk <b>#'+$value+'</b> tidak di temukan</p>');
                 }
-            });
-        }, 200)
+            }
+        });
     });
 
     $(document).on('click','.btn-update-qty',function(e)
@@ -335,7 +332,7 @@ $(document).ready(function() {
                     dataType: "json",
                     beforeSend: function()
                     {
-                        $('.spinner').removeClass('d-none');
+                        // $('.spinner').removeClass('d-none');
                     },
                     success: function(data)
                     {
@@ -418,7 +415,7 @@ $(document).ready(function() {
 
     $(document).on('click', '.btn-bayar', function (e) {
         $('.btnSubmit').click();
-
+        $('#form-order').append('<input type="hidden" value="1" name="btn_bayar">');
     });
 
     $(document).on('click', '.btn-hapus', function (e) {
@@ -443,7 +440,7 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.btn-list-order', function (e) {
-        console.log('ok')
+        // console.log('ok')
         window.location.href=base_url+'/kasir/order-list'
     })
 });
@@ -454,12 +451,17 @@ function buildItem(item) {
         html += '<div class="product-show btn-product-card" data-name="'+item.product_display_name+'" data-price="'+item.product_price+'" data-id="'+item.id+'" title="'+item.product_display_name+'">';
             html += '<div class="card card-kasir" id="card-product" style="width: 133px">';
 
-                if (item.metas) 
+                if (item.metas.length) 
                 {
                     $.each(item.metas, function (index, meta) {
-                        html += '<img class="card-img-top" src="'+JSON.parse(meta.meta_value).media_path+'" height="100" alt="'+item.product_display_name+'">';
+                        if (meta.meta_value !== null)
+                            html += '<img class="card-img-top" src="'+JSON.parse(meta.meta_value).media_path+'" height="100" alt="'+item.product_display_name+'">';
+                        else
+                            html += '<img class="card-img-top" src="' + base_url + '/assets/img/box.jpg" height="100" alt="' + item.product_display_name + '">';
                     });
-                }
+                } 
+                else
+                    html += '<img class="card-img-top" src="'+base_url+'/assets/img/box.jpg" height="100" alt="'+item.product_display_name+'">';
 
                 html += '<p class="text-center mb-0 text-light text-price"><b>Rp. '+DecimalAsString(item.product_price)+'</b></p>';
                 html += '<p class="card-text text-center text-title"><b>'+item.product_display_name.substr(0, 28)+'</b></p>';

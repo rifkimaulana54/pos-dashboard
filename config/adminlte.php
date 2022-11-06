@@ -240,13 +240,16 @@ return [
         [
             'text' => 'Dashboard',
             'url'  => '/',
-            // 'can'   => 'all',
+            'can'  => 'all',
             'icon' => 'fas fa-fw fa-home'
-            // 'can'  => 'manage-blog',
         ],
         
         [
             'header' => 'PRODUCT MANAGEMENT',
+            'can'   => [
+                'read-cms-category',
+                'read-cms-product'
+            ]
         ],
         [
             'text'    => 'Product Category',
@@ -254,8 +257,7 @@ return [
             'active'  => ['categories'],
             'url'     => 'categories',
             'can'   => [
-                'read-cms-user',
-                'read-cms-acl-role',
+                'read-cms-category'
             ]
         ],
         [
@@ -263,27 +265,37 @@ return [
             'icon'    => 'fas fa-fw fa-archive',
             'active'  => ['Product'],
             'url'     => 'products',
+            'can'   => [
+                'read-cms-product'
+            ]
         ],
         [
             'header' => 'TRANSACTION',
+            'can'   => [
+                'read-cms-order'
+            ]
         ],
         [
             'text'    => 'Order List',
             'icon'    => 'fas fa-fw fa-file-invoice-dollar',
             'active'  => ['orders'],
             'url'     => 'orders',
+            'can'   => ['read-cms-order']
         ],
         [
             'header' => 'USER MANAGEMENT',
-            // 'can'   => [
-            //     'read-cms-user',
-            //     'read-cms-acl-role',
-            // ]
+            'can'   => [
+                'read-cms-user',
+                'read-cms-acl-role',
+            ]
         ],
         [
             'text'    => 'Access Control List',
             'icon'    => 'fas fa-fw fa-fingerprint',
             'active' => ['users/acl*'],
+            'can'   => [
+                'read-cms-acl-role',
+            ],
             'submenu' => [
                 [
                     'text' => 'Role',
@@ -302,33 +314,30 @@ return [
             'icon'    => 'fas fa-fw fa-users',
             'active'  => ['users'],
             'url'     => 'users',
-            // 'submenu' => [
-            //     [
-            //         'text' => 'List User',
-            //         'url'  => 'users',
-            //         'active' => ['users', 'users', 'regex:@^users/[0-9]+$@'],
-            //     ],
-            //     [
-            //         'text' => 'Tambah User',
-            //         'url'  => 'users/create',
-            //         'active' => ['users/create', 'users/create', 'regex:@^users/create[0-9]+$@'],
-            //     ],
-            // ],
+            'can'   => [
+                'read-cms-user'
+            ]
         ],
         [
-            'header' => 'SETTING'
+            'header' => 'SETTING',
+            'can'   => [
+                'read-cms-store'
+            ]
         ],
-        [
-            'text'    => 'Company',
-            'icon'    => 'fas fa-fw fa-building',
-            'active'  => ['companies'],
-            'url'     => 'companies',
-        ],
+        // [
+        //     'text'    => 'Company',
+        //     'icon'    => 'fas fa-fw fa-building',
+        //     'active'  => ['companies'],
+        //     'url'     => 'companies',
+        // ],
         [
             'text'    => 'Store',
             'icon'    => 'fas fa-fw fa-store',
             'active'  => ['stores'],
             'url'     => 'stores',
+            'can'     => [
+                'read-cms-store'
+            ]
         ]
     ],
 
@@ -345,13 +354,15 @@ return [
     */
 
     'filters' => [
-        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        // JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\HrefFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SearchFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ActiveFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ClassesFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\LangFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\DataFilter::class,
+        // custom menu filter
+        App\MenuFilter::class,
     ],
 
     /*

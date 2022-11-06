@@ -10,7 +10,7 @@
         <div class="row">
             <div class="col">
             {{-- <i class="fas fa-fw fa-arrow-left"></i>  --}}
-                <h5 class="m-0"><b>POS</b></h5>
+                <h5 class="m-0"><b>POS RESTO</b></h5>
             </div>
             <div class="col text-center">
                 <h5 class="m-0"><b>Logo</b></h5>
@@ -39,7 +39,7 @@
             </div>
         </div>
     </nav>
-    <div class="row" id="navbar">
+    <div class="row" id="navbar row-body">
         <div class="col-md-8 border-right border-dark">
             <div class="row">
                 <div class="d-flex mt-3 col-sm-6">

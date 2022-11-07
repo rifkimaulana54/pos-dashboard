@@ -535,7 +535,48 @@ tr.shown td.details-control {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 73vh;
+    height: 71vh;
+}
+
+/* Scroll detail order in order list */
+.scrollbar-list-order::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+.scrollbar-list-order::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.scrollbar-list-order::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-color: #000000;
+}
+
+.scrollbar-list-order {
+    scrollbar-color: #000000 #F5F5F5;
+}
+.bordered-list-order::-webkit-scrollbar-track {
+    -webkit-box-shadow: none;
+    border: 1px solid #000000;
+}
+
+.bordered-list-order::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: none;
+}
+
+.thin-list-order::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-order-2 {
+    position: relative;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 90vh;
 }
 
 .text-price {
@@ -629,4 +670,10 @@ tr.shown td.details-control {
 .btn-list-order:hover {
     cursor: pointer;
     background: #999;
+}
+
+.order_list_detail:hover {
+    cursor: pointer;
+    background: rgb(200, 200, 200);
+
 }

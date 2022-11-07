@@ -330,9 +330,29 @@ class KasirController extends Controller
             foreach ($user->metas as $meta) 
                 $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
 
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/order',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'store_id' => $request->store_id,
+                    'status' => 2,
+                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                ))
+            ),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $orderApi = OrderApi::postData($postParam);
+        $orderDecode = json_decode($orderApi);
+
+        if (!empty($orderDecode->data->orders))
+            $orders = $orderDecode->data;
+
+        // dd($orderDecode);
         return view('kasir.order-list', [
-            'metas' => !empty($metas) ? $metas : array(),
             'request' => $request,
+            'metas' => !empty($metas) ? $metas : array(),
+            'orders' => !empty($orders) ? $orders : array(),
         ]);
     }
 }

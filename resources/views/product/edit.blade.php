@@ -122,7 +122,7 @@
                                     <div class="card-body text-center">
                                     <input type="file" class="required gambar" style="display: none" @if(empty($product->meta['image'])) required @endif accept="image/*" name="image" data-preview="#previewImg" data-preview-detail="#previewDetailImg" data-min-width="250" data-min-height="250" data-wid="250" data-cropper="1">
                                     <figure class="figure">
-                                        <img id="previewImg" @if(!empty($product->meta['image'])) src="{{ $product->meta['image']['media_path'] }}"  @else src="{{ asset('assets/img/box.jpg') }}" @endif class="img-fluid mb-2 img-thumbnail figure-img rounded">
+                                        <img id="previewImg" @if(!empty($product->meta['image'])) src="{{ $product->meta['image']['media_path'] }}"  @else src="{{ asset('assets/img/box.jpg') }}" @endif width="350" height="350" class="img-fluid mb-2 img-thumbnail figure-img rounded">
                                         <figcaption class="figure-caption text-center">Image.</figcaption>
                                     </figure>
                                     <div class="invalid-feedback">
@@ -157,7 +157,7 @@
                     </div>
                     
                     <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" data-backdrop="static">
-                        <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-dialog modal-md" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="modalLabel">Crop Image</h5>

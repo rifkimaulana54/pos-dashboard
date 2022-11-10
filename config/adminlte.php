@@ -301,11 +301,17 @@ return [
                     'text' => 'Role',
                     'url'  => 'users/acl/roles',
                     'active' => ['users/acl/roles', 'users/acl/roles/create', 'regex:@^users/acl/roles/[0-9]+$@'],
+                    'can'   => [
+                        'read-cms-acl-role',
+                    ],
                 ],
                 [
                     'text' => 'Permission',
                     'url'  => 'users/acl/permissions',
                     'active' => ['users/acl/permissions', 'users/acl/permissions/create', 'regex:@^users/acl/permissions/[0-9]+$@'],
+                    'can'   => [
+                        'read-cms-acl-role',
+                    ],
                 ],
             ],
         ],
@@ -396,6 +402,18 @@ return [
                     'asset' => false,
                     'location' => '//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css',
                 ],
+            ],
+        ],
+        [
+            'name' => 'MomentJS',
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    // 'location' => '//cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js',
+                    'location' => '/js/moment.min.js'
+                ]
             ],
         ],
         'Select2' => [

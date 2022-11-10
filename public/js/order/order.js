@@ -126,8 +126,24 @@ function get_order_list()
                 defaultContent: "<i>-</i>",
             },
             {
-                data:'status_html',
-                defaultContent: "<i>-</i>",
+                data: null,
+                render:function(data)
+                {
+                    status_html = '';
+                    switch (data.status) {
+                        case 2:
+                            status_html = '<span class="badge badge-info">' + data.status_label +'</span>';
+                            break;
+                        case 3:
+                            status_html = '<span class="badge badge-warning">' + data.status_label +'</span>';
+                            break;
+                        default:
+                            status_html = '<span class="badge badge-success">'+data.status_label+'</span>';
+                            break;
+                    }
+                    return status_html;
+
+                }
             },
             {
                 data:null,

@@ -372,7 +372,7 @@ class OrderController extends Controller
             default:$order_by='order_code';break;
         }
 
-        $order = $request->input('sSortDir_0',true);
+        $order = $request->input('sSortDir_0');
 
         $postParam = array(
             'endpoint'  => 'v'.config('app.api_ver').'/order',
@@ -381,7 +381,7 @@ class OrderController extends Controller
                 'per_page' => $this->limit,
                 'sort_by' => $order_by,
                 'keyword' => '',
-                'sort' => $order,
+                'sort' => !empty($order) ? $order : 'desc',
                 'filter' => array(
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
                 ),
@@ -392,6 +392,11 @@ class OrderController extends Controller
 
         if(!empty($request->input('sSearch')))
             $postParam['form_params']['keyword'] = $request->input('sSearch');
+        if(!empty($request->input('search')))
+        {
+            $postParam['form_params']['sort'] = 'asc';
+            $postParam['form_params']['keyword'] = $request->input('search');
+        }
         if(!empty($request->store))
             $postParam['form_params']['filter']['store_id'] = $request->store;
         if($request->user_role[0] == 'kasir')
@@ -420,18 +425,21 @@ class OrderController extends Controller
                             $order->store_html = $order->store->store_name;
                             $order->subtotal_html = 'Rp. '.number_format($order->total_order);
 
-                            switch($order->status)
-                            {
-                                case 2:
-                                    $order->status_html = '<span class="badge badge-info">' . $order->status_label . '</span>';
-                                    break;
-                                case 3:
-                                    $order->status_html = '<span class="badge badge-warning">' . $order->status_label . '</span>';
-                                    break;
-                                default:
-                                    $order->status_html = '<span class="badge badge-success">' . $order->status_label . '</span>';
-                                    break;
-                            }
+                            // if(empty($request->input('search')))
+                            // {
+                            //     switch($order->status)
+                            //     {
+                            //         case 2:
+                            //             $order->status_html = '<span class="badge badge-info">' . $order->status_label . '</span>';
+                            //             break;
+                            //         case 3:
+                            //             $order->status_html = '<span class="badge badge-warning">' . $order->status_label . '</span>';
+                            //             break;
+                            //         default:
+                            //             $order->status_html = '<span class="badge badge-success">' . $order->status_label . '</span>';
+                            //             break;
+                            //     }
+                            // }
 
                             // if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-orders') && !empty(session('company')['id']) && session('company')['id'] == $order->company_id))
                             //     $order->update = 1;

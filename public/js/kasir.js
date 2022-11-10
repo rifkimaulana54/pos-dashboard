@@ -4,7 +4,7 @@ $(document).ready(function() {
 
     $.ajaxSetup({
         headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
@@ -33,37 +33,37 @@ $(document).ready(function() {
         })
     }
 
-    if($('.product-wrapper').length)
-    {
-        //set timeout overlay
-        clearTimeout(timer)
-        timer = setTimeout(function() {
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: base_url + '/kasir/getProductList/',    
-                dataType: "json",
-                // beforeSend: function()
-                // {
-                //     // $('.spinner').removeClass('d-none');
-                // },
-                success: function(data)
-                {
-                    // console.log(data);
-                    if(data.data.length != 0)
-                    {
-                        var output = '';
-                        $.each(data.data, function(i, product)
-                        {
-                            output += buildItem(product);
-                        })
+    // if($('.product-wrapper').length)
+    // {
+    //     //set timeout overlay
+    //     clearTimeout(timer)
+    //     timer = setTimeout(function() {
+    //         $.ajax({
+    //             type: "POST",
+    //             dataType: "json",
+    //             url: base_url + '/kasir/getProductList/',    
+    //             dataType: "json",
+    //             // beforeSend: function()
+    //             // {
+    //             //     // $('.spinner').removeClass('d-none');
+    //             // },
+    //             success: function(data)
+    //             {
+    //                 // console.log(data);
+    //                 if(data.data.length != 0)
+    //                 {
+    //                     var output = '';
+    //                     $.each(data.data, function(i, product)
+    //                     {
+    //                         output += buildItem(product);
+    //                     })
 
-                        $('.product-wrapper').html(output);
-                    }
-                }
-            });
-        },200)
-    }
+    //                     $('.product-wrapper').html(output);
+    //                 }
+    //             }
+    //         });
+    //     },200)
+    // }
 
     $(document).on('change', '#category_id', function()
     {
@@ -185,6 +185,8 @@ $(document).ready(function() {
                         $(target).html('')
                         if(!$('.clone_tr').find('td').length)
                         {
+                            $('#customer-name').val('');
+                            $("#order_id").val('').select2();
                             $('.not-product').removeClass('d-none')
                             $('#customer-name').prop('disabled', true);
                             $('.form-btn').css("opacity", "0.5");
@@ -245,7 +247,7 @@ $(document).ready(function() {
             if(!$('.tr-'+id).find('td').length)
             {
                 $('.not-product').addClass('d-none')
-                $cloned_tr.insertBefore(clone);
+                $cloned_tr.insertAfter(clone);
                 $cloned_tr.find('#product_name').text(name_product);
                 $cloned_tr.find('#price').text('Rp. '+DecimalAsString(price));
                 $cloned_tr.find('.sub_price').val(price);
@@ -298,114 +300,19 @@ $(document).ready(function() {
         }
     });
 
+    
+    if($('#append_order').length)
+    {
+        if ($('#order_id').val() != '') {
+            var id = $('#order_id').val();
+            renderOrder(id);
+        }
+    }
+
     $(document).on('change', '#order_id', function()
     {
         var id = $(this).val();
-        $('#customer-name').val('');
-        $('#customer-name').prop('disabled', false); 
-
-        $('#total_add_qty').val(0);
-        $('.not-product').removeClass('d-none');
-        $('#append_order').html('');
-        $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>')
-        $('#grandtotal').val(0);
-        $('.form-btn').css("opacity", "0.5");
-        $('.add-btn-simpan').removeClass('btn-simpan');
-        $('.add-btn-hapus').removeClass('btn-hapus');
-        $('.add-btn-bayar').removeClass('btn-bayar');
-        if($('tr[id^="add_tr_"]:visible').length)
-            $('tr[id^="add_tr_"]:visible').remove();
-        $('#form-order').attr('action', base_url+'/kasir/store');
-        $('#update-order').html('');
-
-        if(id != '')
-        {
-            clearTimeout(timer)
-            timer = setTimeout(function() {
-                $.ajax({
-                    type: "GET",
-                    dataType: "json",
-                    url: base_url + '/kasir/'+id,    
-                    // data:{'order_id':id},
-                    // processData: false,
-                    // contentType: false,
-                    dataType: "json",
-                    beforeSend: function()
-                    {
-                        // $('.spinner').removeClass('d-none');
-                    },
-                    success: function(data)
-                    {
-                        if(data.customer_name != undefined)
-                        {
-                            $('#customer-name').val(data.customer_name);
-                            $('#customer-name').prop('disabled', true);
-                        }
-                        if(data.mapping.length != 0)
-                        {
-                            var column = 0;
-                            var html = '';
-                            $.each(data.mapping, function(i, item)
-                            {
-                                if($(".tr-"+item["product_id"]).length)
-                                {
-                                    $(".tr-"+item["product_id"]).html('');
-                                    $(".tr-"+item["product_id"]).removeAttr('id class');
-                                }
-                                html += '<tr id="add_tr_'+column+'" class="clone_tr tr-'+item["product_id"]+'">';
-                                    html += '<td>';
-                                        html += '<div class="input-group input-spinner">';
-                                            html += '<div class="input-group-prepend">';
-                                                html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
-                                            html += '</div>';
-                                            html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items['+column+'][column][claim_qty]" id="claim_qty" max="45" readonly>';
-                                            html += '<div class="input-group-append">';
-                                                html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
-                                            html += '</div>';
-                                        html += '</div>';
-                                    html += '</td>';
-                                    html += '<td width="210">';
-                                        html += '<p class="mt-3">'+item["product"].product_display_name+'</p>';
-                                    html += '</td>';
-                                    html += '<td>';
-                                        html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_subtotal'])+'</p>';
-                                        html += '<input type="hidden" name="items[' + column +'][column][default_price]" value="'+item['default_price']+'" class="default_price">';
-                                        html += '<input type="hidden" value="'+item['order_subtotal']+'" name="items['+column+'][column][subtotal]" class="sub_price">';
-                                        html += '<input type="hidden" value="'+item['product_id']+'" name="items['+column+'][column][product_id]" class="product_id" value="'+item["id"]+'">';
-                                    html += '</td>';
-                                html += "</tr>";
-                                column++;
-                            })
-                            $('#append_order').html(html);
-                            $('.not-product').addClass('d-none');
-                            $('#form-order').removeAttr('action');
-                            $('#form-order').attr('action', base_url+'/kasir/'+id);
-                            $('#update-order').html('<input type="hidden" name="_method" value="PUT">');
-
-                            // var result_price = [];
-                            // $.each($('.sub_price'), function (i, price) {
-                            //     result_price.push(parseInt(price.defaultValue));
-                            // });
-                            // var slice = result_price.slice(0, -1);
-                            // total = slice.reduce(function(a,b){
-                            //             return a+b
-                            //         })
-
-                            total = data.total_order;
-                            $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(total)+'</b></h4>')
-                            $('#grandtotal').val(total);
-                            $('#total_add_qty').val(total);
-
-                            $('.form-btn').css("opacity", "1");
-                            $('.add-btn-simpan').addClass('btn-simpan');
-                            $('.add-btn-hapus').addClass('btn-hapus');
-                            $('.add-btn-bayar').addClass('btn-bayar');
-                        }
-                    }
-                });
-            }, 200)
-        }
-
+        renderOrder(id);
     });
 
     $(document).on('click', '.btn-simpan', function (e) {
@@ -471,4 +378,103 @@ function buildItem(item) {
     html += "</div>";
 
     return html;
+}
+
+function renderOrder(id)
+{
+    $('#customer-name').val('');
+    $('#customer-name').prop('disabled', false); 
+
+    $('#total_add_qty').val(0);
+    $('.not-product').removeClass('d-none');
+    $('#append_order').html('');
+    $('.grandtotal-bayar').html('<h4><b>Rp. 0</b></h4>')
+    $('#grandtotal').val(0);
+    $('.form-btn').css("opacity", "0.5");
+    $('.add-btn-simpan').removeClass('btn-simpan');
+    $('.add-btn-hapus').removeClass('btn-hapus');
+    $('.add-btn-bayar').removeClass('btn-bayar');
+    if($('tr[id^="add_tr_"]:visible').length)
+        $('tr[id^="add_tr_"]:visible').remove();
+    $('#form-order').attr('action', base_url+'/kasir/store');
+    $('#update-order').html('');
+
+    if(id != '')
+    {
+        clearTimeout(timer)
+        timer = setTimeout(function() {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: base_url + '/kasir/'+id,    
+                // data:{'order_id':id},
+                // processData: false,
+                // contentType: false,
+                dataType: "json",
+                beforeSend: function()
+                {
+                    // $('.spinner').removeClass('d-none');
+                },
+                success: function(data)
+                {
+                    if(data.customer_name != undefined)
+                    {
+                        $('#customer-name').val(data.customer_name);
+                        $('#customer-name').prop('disabled', true);
+                    }
+                    if(data.mapping.length != 0)
+                    {
+                        var column = 0;
+                        var html = '';
+                        $.each(data.mapping, function(i, item)
+                        {
+                            if($(".tr-"+item["product_id"]).length)
+                            {
+                                $(".tr-"+item["product_id"]).html('');
+                                $(".tr-"+item["product_id"]).removeAttr('id class');
+                            }
+                            html += '<tr id="add_tr_'+column+'" class="clone_tr tr-'+item["product_id"]+'">';
+                                html += '<td>';
+                                    html += '<div class="input-group input-spinner">';
+                                        html += '<div class="input-group-prepend">';
+                                            html += '<button class="btn btn-light rounded-left btn-update-qty button-minus layer-0" type="button" id="button-minus" data-operator="-"> <i class="fa fa-minus"></i> </button>';
+                                        html += '</div>';
+                                        html += '<input type="text" class="form-control claim_qty px-0 " value="'+item["order_qty"]+'" min="1" name="items['+column+'][column][claim_qty]" id="claim_qty" max="45" readonly>';
+                                        html += '<div class="input-group-append">';
+                                            html += '<button class="btn btn-light rounded-right btn-update-qty button-plus layer-0" type="button" id="button-plus" data-operator="+" data-max="10"> <i class="fa fa-plus"></i> </button>';
+                                        html += '</div>';
+                                    html += '</div>';
+                                html += '</td>';
+                                html += '<td width="210">';
+                                    html += '<p class="mt-3">'+item["product"].product_display_name+'</p>';
+                                html += '</td>';
+                                html += '<td>';
+                                    html += '<p class="mt-3" id="price">Rp. '+DecimalAsString(item['order_subtotal'])+'</p>';
+                                    html += '<input type="hidden" name="items[' + column +'][column][default_price]" value="'+item['default_price']+'" class="default_price">';
+                                    html += '<input type="hidden" value="'+item['order_subtotal']+'" name="items['+column+'][column][subtotal]" class="sub_price">';
+                                    html += '<input type="hidden" value="'+item['product_id']+'" name="items['+column+'][column][product_id]" class="product_id" value="'+item["id"]+'">';
+                                html += '</td>';
+                            html += "</tr>";
+                            column++;
+                        })
+                        $('#append_order').html(html);
+                        $('.not-product').addClass('d-none');
+                        $('#form-order').removeAttr('action');
+                        $('#form-order').attr('action', base_url+'/kasir/'+id);
+                        $('#update-order').html('<input type="hidden" name="_method" value="PUT">');
+
+                        total = data.total_order;
+                        $('.grandtotal-bayar').html('<h4><b>Rp. '+DecimalAsString(total)+'</b></h4>')
+                        $('#grandtotal').val(total);
+                        $('#total_add_qty').val(total);
+
+                        $('.form-btn').css("opacity", "1");
+                        $('.add-btn-simpan').addClass('btn-simpan');
+                        $('.add-btn-hapus').addClass('btn-hapus');
+                        $('.add-btn-bayar').addClass('btn-bayar');
+                    }
+                }
+            });
+        }, 200)
+    }
 }

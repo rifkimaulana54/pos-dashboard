@@ -15,6 +15,10 @@ const swalWithBootstrapButtons = Swal.mixin({
     buttonsStyling: false
 })
 
+var url = new URL(window.location);
+var queryString = window.location.search;
+var urlParams = new URLSearchParams(queryString);
+
 $(document).ready(function($) 
 {
     if($('.no-need-confirm').length)

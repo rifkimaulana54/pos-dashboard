@@ -67,10 +67,10 @@
                 <!-- Grid column -->
                 <div class="col-md-12 pt-2 example-1 scrollbar-deep-purple thin border-top border-dark bg-light" style="margin-top: 15px ">
                     <div class="row pt-2 product-wrapper">
-                        {{-- @foreach ($products as $product)
+                        @foreach ($products as $product)
                             <div class="col-md-2.5 ml-3">
-                                <a href="#" class="product-show" title="{{$product->product_display_name}}">
-                                    <div class="card card-kasir" style="width: 133px">
+                                <div class="product-show btn-product-card" data-name="{{$product->product_display_name}}" data-price="{{$product->product_price}}" data-id="{{$product->id}}" title="{{$product->product_display_name}}">
+                                    <div class="card card-kasir" id="card-product" style="width: 133px">
                                         @php
                                             if(!empty($product->metas))
                                             {
@@ -79,16 +79,16 @@
                                                     $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
 
                                                 if(!empty($metas['image']))
-                                                    $product->image_html = $metas['image']['media_path'];
+                                                    $image_html = $metas['image']['media_path'];
                                             }
                                         @endphp
-                                        <img class="card-img-top" src="{{$product->image_html}}" height="100" alt="Card image cap">
+                                        <img class="card-img-top" src="@if(!empty($product->metas)) {{$image_html}} @else {{asset('/assets/img/box.jpg')}} @endif" height="100" alt="{{$product->product_display_name}}">
                                         <p class="text-center mb-0 text-light text-price"><b>Rp. {{number_format($product->product_price)}}</b></p>
                                         <p class="card-text text-center text-title"><b>{{substr($product->product_display_name, 0 ,28)}}</b></p>
                                     </div>
-                                </a>
+                                </div>
                             </div>
-                        @endforeach --}}
+                        @endforeach
                     </div>
                 </div>
                 <!-- Grid column -->
@@ -108,7 +108,7 @@
                                 <option value="" id="order_code">-- Order Code --</option>
                                 @if(!empty($orders))
                                     @foreach ($orders as $order)
-                                        <option value="{{$order->id}}" @if(!empty($order_list->order_id) && $order_list == $order->id) selected @endif>{{$order->order_code}}@if(!empty($order->customer_name)) #{{$order->customer_name}}@endif</option>
+                                        <option value="{{$order->id}}" @if(!empty($order_list->order_id) && $order_list == $order->id) selected @elseif(!empty($_GET['order']) && $_GET['order'] == $order->id) selected @endif>{{$order->order_code}}@if(!empty($order->customer_name)) #{{$order->customer_name}}@endif</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -127,9 +127,23 @@
                 <div class="example-2 scrollbar-deep-order bord-orderered-deep-order thin-order">
                     <table>
                         <tbody id="list_order">
+                            @if(Session::has('flash_error'))
+                                <div class="alert alert-success alert-dismissible fade show mt-2 mr-2 not-product" role="alert">
+                                    {!! session('flash_error') !!}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            @endif
+                            @if(Session::has('flash_success'))
+                                <div class="alert alert-success alert-dismissible fade show mt-2 mr-2 not-product" role="alert">
+                                    {!! session('flash_success') !!}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            @endif
                             <p class="m-3 not-product">Belum ada product yang dipilih!</p>
-                            <div id="append_order">
-                            </div>
                             <tr class="d-none tr_clone_items">
                                 <td>
                                     <div class="input-group input-spinner">
@@ -155,6 +169,8 @@
                             <input type="hidden" value="0" id="total_add_qty">
                         </tbody>
                     </table>
+                    <div id="append_order">
+                    </div>
                     <input type="hidden" name="grandtotal" value="0" id="grandtotal">
                 </div>
                 <div class="row bg-light form-btn">

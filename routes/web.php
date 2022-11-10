@@ -73,7 +73,7 @@ Route::post('/orders/getOrderList', [App\Http\Controllers\Order\OrderController:
 Route::resource('/orders', App\Http\Controllers\Order\OrderController::class);
 
 //Kasir
-Route::get('/kasir/order-list', [App\Http\Controllers\Kasir\KasirController::class, 'orderList']);
+Route::get('/kasir/order-list', [App\Http\Controllers\Kasir\KasirController::class, 'order_list']);
 Route::post('/kasir/getProductList', [App\Http\Controllers\Kasir\KasirController::class, 'getProductList']);
 Route::get('/kasir', [App\Http\Controllers\Kasir\KasirController::class, 'index']);
 Route::post('/kasir/store', [App\Http\Controllers\Kasir\KasirController::class, 'store']);

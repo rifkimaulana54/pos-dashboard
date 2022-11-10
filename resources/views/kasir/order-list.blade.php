@@ -57,24 +57,26 @@
                 </div>
             </div>
 
-            @if(!empty($orders->orders))
-                @foreach ($orders->orders as $order)
-                    <div class="pl-2 pt-4 pr-2 order_list_detail" data-order="{{json_encode($order)}}">
-                        <div class="row border-bottom border-dark pb-2">
-                            <div class="col">
-                                <span class="m-0">#@if(!empty($order->customer_name)){{$order->customer_name}}@endif</span><br>
-                                <b>{{$order->order_code}}</b>
-                            </div>
-                            <div class="col text-right">
-                                <small>{{date('H:i',strtotime($order->created_at))}}</small><br>
-                                <b>Rp. {{number_format($order->total_order)}}</b>
+            <div class="order_list">
+                @if(!empty($orders->orders))
+                    @foreach ($orders->orders as $key => $order)
+                        <div class="pl-2 pt-4 pr-2 order_list_detail" data-order="{{json_encode($order)}}">
+                            <div class="row border-bottom border-dark pb-2">
+                                <div class="col">
+                                    <span class="m-0">#@if(!empty($order->customer_name)){{$order->customer_name}}@endif</span><br>
+                                    <b>{{$order->order_code}}</b>
+                                </div>
+                                <div class="col text-right">
+                                    <small>{{date('H:i',strtotime($order->created_at))}}</small><br>
+                                    <b>Rp. {{number_format($order->total_order)}}</b>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="text-center"><h4>Belum ada order</h4></div>
-            @endif
+                    @endforeach
+                @else
+                    <div class="text-center"><h4>Belum ada order</h4></div>
+                @endif
+            </div>
             
         </div>
         <div class="col-md-8 p-0">
@@ -84,7 +86,7 @@
                     <div class="row text-light" style="background-color: rgb(203, 203, 203)">
                         <table class="table text-dark" style="margin-bottom: 13px;">
                             <tr>
-                                <td>Kode Order<br><b id="order_code">-</b></td>
+                                <td class="pl-4">Kode Order<br><b id="order_code">-</b></td>
                                 <td>Nama Pemesan<br><b id="customer_name">-</b></td>
                                 <td>Waktu Pemesanan<br><b id="order_date">-</b></td>
                                 <td>Kasir<br><b id="store">-</b></td>
@@ -106,15 +108,15 @@
                 </div>
                 <div class="row m-0">
                     <div class="col-md-8 p-2">
-                        <a href="" class="btn btn-bayar-order-list text-light ml-4" style="background-color: black">
+                        <a href="#" class="btn btn-print-order-list text-light ml-4 disabled" style="background-color: black">
                             <b><i class="fas fa-fw fa-print"></i>PRINT</b>
                         </a>
                     </div>
                     <div class="col-md-4 p-2 d-flex">
-                        <a href="" class="btn btn-light text-dark mr-2">
+                        <a href="#" class="btn btn-light btn-order-order-list text-dark mr-2 disabled">
                             <b><i class="fas fa-fw fa-save"></i>ORDER</b>
                         </a>
-                        <a href="" class="btn btn-bayar-order-list text-light" style="background-color: black">
+                        <a href="#" class="btn btn-bayar-order-list text-light disabled" style="background-color: black">
                             <b><i class="fas fa-fw fa-save"></i>BAYAR</b>
                         </a>
                     </div>

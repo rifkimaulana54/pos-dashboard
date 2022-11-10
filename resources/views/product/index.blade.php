@@ -33,10 +33,10 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         @if(Session::has('flash_error'))
-                        <div class="alert alert-danger text-center">{!! session('flash_error') !!}</div>
+                            <div class="alert alert-danger text-center">{!! session('flash_error') !!}</div>
                         @endif
                         @if(Session::has('flash_success'))
-                        <div class="alert alert-success text-center">{!! session('flash_success') !!}</div>
+                            <div class="alert alert-success text-center">{!! session('flash_success') !!}</div>
                         @endif
                         <div class="table-responsive">
                             <table id="productList" class="table table-bordered table-striped">

@@ -85,13 +85,33 @@ class KasirController extends Controller
         if (!empty($orderDecode->data->orders))
             $orders = $orderDecode->data->orders;
 
-        // dd($orderDecode);
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/product',
+            'form_params' => array(
+                'sort_by' => 'product_name',
+                'sort'    => 'asc',
+                'filter' => json_encode(array(
+                    'status' => 1,
+                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                ))
+            ),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $productApi = ProductApi::postData($postParam);
+        $productDecode = json_decode($productApi);
+
+        if (!empty($productDecode->data->products))
+            $products = $productDecode->data->products;
+
+        // dd($productDecode);
         return view('kasir.index', [
             'request' => $request,
             'metas' => !empty($metas) ? $metas : array(),
             'categories' => !empty($categories) ? $categories : array(),
             'count_orders' => !empty($orderDecode->data->total_records) ? $orderDecode->data->total_records : array(),
             'orders' => !empty($orders) ? $orders : array(),
+            'products' => !empty($products) ? $products : array(),
         ]);
     }
 
@@ -237,7 +257,69 @@ class KasirController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd('masuk update');
+        if(!GlobalHelper::userCan($request, 'update-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+        // dd($request->all());
+
+        $item_orders = [];
+        if(!empty($request->items))
+        {
+            foreach($request->items as $i => $items)
+            {
+                if (is_int($i) && !empty($items['column']['product_id'])) 
+                {
+                    $item_orders[] = array(
+                        'product_id' => !empty($items['column']['product_id']) ? $items['column']['product_id'] : '',
+                        'order_qty' => !empty($items['column']['claim_qty']) ? $items['column']['claim_qty'] : '',
+                        'default_price' => !empty($items['column']['default_price']) ? $items['column']['default_price'] : '',
+                        'order_subtotal' => !empty($items['column']['subtotal']) ? $items['column']['subtotal'] : '',
+                    );
+                }
+                
+            }
+        }
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/'.$id,
+            'form_params' => array(
+                'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                'customer_name' => !empty($request->customer) ? $request->customer : '',
+                'total_order' => !empty($request->grandtotal) ? $request->grandtotal : '',
+                'items' => !empty($item_orders) ? GlobalHelper::maybe_serialize($item_orders) : '',
+                'status'      => 2,
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        // dd($postParam);
+
+        $orderApi = OrderApi::updateData( $postParam );
+        $dataDecode = json_decode($orderApi);
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return redirect('kasir')->withInput();
+        }
+        else
+        {
+            \Session::flash('flash_success', $dataDecode->message);
+            if(!empty($request->btn_bayar))
+            {
+                return redirect('kasir/order-list');
+            }
+            else
+            {
+                return redirect('kasir');
+            }
+        }
     }
 
     /**
@@ -304,7 +386,7 @@ class KasirController extends Controller
 
     }
 
-    public function orderList(Request $request)
+    public function order_list(Request $request)
     {
         if(!GlobalHelper::userCan($request, 'read-orders'))
         {

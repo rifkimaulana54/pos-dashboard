@@ -52,13 +52,14 @@ $(document).ready(function() {
         e.preventDefault();
         var target  = $(this).data('order');
         console.log(target)
+        $('.btn-print-order-list').attr('data-id', target.id);
         $('#order_code').html(target.order_code);
         $('#customer_name').html(target.customer_name);
         $('#order_date').html(new Date(target.created_at).toUTCString());
         $('#store').html(target.store.store_name);
         $('#total_bayar').html('Rp. '+DecimalAsString(target.total_order));
 
-        $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id);
+        $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id).attr('target', '_blank');
         $('.btn-order-order-list').removeClass('disabled').attr('href', base_url + '/kasir?order='+target.id);
         $('.btn-bayar-order-list').removeClass('disabled').attr('href', base_url + '/kasir/bayar/'+target.id);
 

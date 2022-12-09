@@ -1,6 +1,6 @@
 @extends('adminlte::page-kasir')
 
-@section('title', 'POS - Kasir')
+@section('title', 'POS Kasir - Order List')
 
 @section('content_header')
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -79,8 +79,8 @@
             </div>
             
         </div>
-        <div class="col-md-8 p-0">
-            <form action="{{url('kasir/process-bayar')}}" method="POST" id="form-order">
+        <div class="col-md-8 pl-0 pt-0 pb-0">
+            {{-- <form action="{{url('kasir/process-bayar')}}" method="POST" id="form-order"> --}}
                 {{ csrf_field() }}
                 <div class="detail-order-2 scrollbar-detail-order bord-detail-order thin-detail-order">
                     <div class="row text-light" style="background-color: rgb(203, 203, 203)">
@@ -94,6 +94,22 @@
                         </table>
                     </div>
 
+                    @if(Session::has('flash_error'))
+                        <div class="alert alert-danger alert-dismissible fade show m-2 not-product" role="alert">
+                            {!! session('flash_error') !!}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+                    @if(Session::has('flash_success'))
+                        <div class="alert alert-success alert-dismissible fade show m-2 not-product" role="alert">
+                            {!! session('flash_success') !!}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
                     <div class="table-order-list">
                         <div class="text-center mt-3"><h4>Tidak ada order yang dipilih!</h4></div>
                     </div>
@@ -120,9 +136,9 @@
                             <b><i class="fas fa-fw fa-save"></i>BAYAR</b>
                         </a>
                     </div>
-                    <button type="submit" class="btnSubmit d-none"></button>
+                    {{-- <button type="submit" class="btnSubmit d-none"></button> --}}
                 </div>
-            </form>
+            {{-- </form> --}}
         </div>
         <div class="overlay d-none spinner">
             <i class="fa fa-fw fa-spinner fa-spin"></i>

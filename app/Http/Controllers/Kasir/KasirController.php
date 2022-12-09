@@ -186,13 +186,9 @@ class KasirController extends Controller
         {
             \Session::flash('flash_success', $dataDecode->message);
             if(!empty($request->btn_bayar))
-            {
-                return redirect('kasir/order-list');
-            }
+                return redirect('kasir/bayar/1');
             else
-            {
-                return redirect('kasir');
-            }
+                return redirect('kasir/order-list');
         }
     }
 
@@ -312,13 +308,9 @@ class KasirController extends Controller
         {
             \Session::flash('flash_success', $dataDecode->message);
             if(!empty($request->btn_bayar))
-            {
-                return redirect('kasir/order-list');
-            }
+                return redirect('kasir/bayar/1');
             else
-            {
-                return redirect('kasir');
-            }
+                return redirect('kasir/order-list');
         }
     }
 
@@ -436,5 +428,41 @@ class KasirController extends Controller
             'metas' => !empty($metas) ? $metas : array(),
             'orders' => !empty($orders) ? $orders : array(),
         ]);
+    }
+
+    public function print(Request $request, $id)
+    {
+        if(!GlobalHelper::userCan($request, 'read-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/' . $id,
+            'form_params' => array(),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $orderApi = OrderApi::getData($postParam);
+        $dataDecode = json_decode($orderApi);
+
+        if(!empty($dataDecode->data->order))
+            $order = $dataDecode->data->order;
+
+        if(!empty($dataDecode->code) && $dataDecode->code != 200)
+        {
+            $error_message = $dataDecode->message;
+            \Session::flash('flash_error', $error_message);
+        }
+
+        return view('kasir.print-nota', 
+            [
+                'request'   => $request,
+                'order'   => !empty($order) ? $order : array(),
+            ]
+        );
     }
 }

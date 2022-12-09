@@ -23,8 +23,24 @@
 @stop
 
 @section('content')
+    @if(Session::has('flash_error'))
+        <div class="alert alert-danger alert-dismissible fade show mt-2 mr-2 not-product" role="alert">
+            {!! session('flash_error') !!}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if(Session::has('flash_success'))
+        <div class="alert alert-success alert-dismissible fade show mt-2 mr-2 not-product" role="alert">
+            {!! session('flash_success') !!}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     <div class="row">
-        <div class="col-lg-3 col-xs-6">
+        <div class="col-md-3 col-xs-6">
             <div class="small-box bg-info">
                 <div class="inner">
                     <h3>150</h3>
@@ -37,7 +53,7 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-xs-6">
+        <div class="col-md-3 col-xs-6">
 
             <div class="small-box bg-yellow">
                 <div class="inner">
@@ -51,7 +67,7 @@
             </div>
         </div>
 
-        <div class="col-lg-3 col-xs-6">
+        <div class="col-md-3 col-xs-6">
 
             <div class="small-box bg-green">
                 <div class="inner">
@@ -65,7 +81,7 @@
             </div>
         </div>
 
-        <div class="col-lg-3 col-xs-6">
+        <div class="col-md-3 col-xs-6">
 
             <div class="small-box bg-red">
                 <div class="inner">

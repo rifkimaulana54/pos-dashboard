@@ -1,6 +1,6 @@
 @extends('adminlte::page-kasir')
 
-@section('title', 'POS - Kasir')
+@section('title', 'POS Kasir - Index')
 
 @section('content_header')
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     <div class="col-6 mt-1">
-                        <b><i class="fas fa-fw fa-user"></i>CUSTOMER NAME</b>
+                        <b><i class="fas fa-fw fa-user"></i>CUSTOMER</b>
                         <div class="mb-1">
                             <input type="text" class="form-control" name="customer" id="customer-name" placeholder="Enter Name"  style="max-width: 200px" required autocomplete="off">
                         </div>

@@ -79,3 +79,4 @@ Route::get('/kasir', [App\Http\Controllers\Kasir\KasirController::class, 'index'
 Route::post('/kasir/store', [App\Http\Controllers\Kasir\KasirController::class, 'store']);
 Route::get('/kasir/{id}', [App\Http\Controllers\Kasir\KasirController::class, 'show']);
 Route::put('/kasir/{id}', [App\Http\Controllers\Kasir\KasirController::class, 'update']);
+Route::get('/kasir/print/{id}', [App\Http\Controllers\Kasir\KasirController::class, 'print']);

@@ -21,14 +21,14 @@
         {{-- Logo --}}
         <div class="{{ $auth_type ?? 'login' }}-logo">
             <a href="{{ $dashboard_url }}">
-                <img src="{{ asset(config('adminlte.logo_img')) }}" height="50">
-                {!! config('adminlte.logo', '<b>Admin</b>LTE') !!}
+                <img src="{{ asset(config('adminlte.logo_img')) }}" height="70" class="img-circle">
+                {{-- {!! config('adminlte.logo', '<b>Admin</b>LTE') !!} --}}<b>Buyut Semar</b>
             </a>
         </div>
 
         {{-- Card Box --}}
-        <div class="card {{ config('adminlte.classes_auth_card', 'card-outline card-primary') }}">
-
+        {{-- <div class="card {{ config('adminlte.classes_auth_card', 'card-outline card-primary') }}"> --}}
+        <div class="card card-outline card-dark">
             {{-- Card Header --}}
             @hasSection('auth_header')
                 <div class="card-header {{ config('adminlte.classes_auth_header', '') }}">
@@ -44,11 +44,11 @@
             </div>
 
             {{-- Card Footer --}}
-            @hasSection('auth_footer')
+            {{-- @hasSection('auth_footer')
                 <div class="card-footer {{ config('adminlte.classes_auth_footer', '') }}">
                     @yield('auth_footer')
                 </div>
-            @endif
+            @endif --}}
 
         </div>
 

@@ -340,6 +340,7 @@ class OrderController extends Controller
 
     public function getOrderList(Request $request)
     {
+        // dd($request->all());
         $return = array(
             'data' => '',
             'all' => 0,

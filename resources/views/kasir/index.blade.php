@@ -6,16 +6,24 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
 @section('body')
-    <nav class="navbar-top p-3">
+    <nav class="navbar-top p-2">
         <div class="row">
-            <div class="col">
+            <div class="col d-flex align-items-center">
             {{-- <i class="fas fa-fw fa-arrow-left"></i>  --}}
                 <h5 class="m-0"><b>POS RESTO</b></h5>
             </div>
-            <div class="col text-center">
-                <h5 class="m-0"><b>Logo</b></h5>
+            <div class="col">
+                <div class="row">
+                    <div class="col text-right">
+                        <img src="{{ asset(config('adminlte.logo_img')) }}" height="50" class="img-circle m-0">
+                    </div>
+                    <div class="col text-left">
+                        <p class="m-0"><b>Warung</b></p>
+                        <b>Buyut Semar</b>
+                    </div>
+                </div>
             </div>
-            <div class="col text-right dropdown">
+            <div class="col text-right dropdown.flex-*-row-reverse mt-2">
                 <a href="#" class="m-0 dropdown-toggle text-light" id="kasirDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><b>{{$request->user_name}} </b><img src="@if(!empty($metas['profile_pic'])){{$metas['profile_pic']['media_path']}}@else{{asset('assets/static/pp.png')}}@endif" class="float-rigth rounded-circle" alt="" width="30" height="30"></a>
                 <div class="dropdown-menu" aria-labelledby="kasirDropdown">
                     <a class="dropdown-item" href="/" target="_blank"><i class="fas fa-fw fa-home"></i> Dashboard</a>

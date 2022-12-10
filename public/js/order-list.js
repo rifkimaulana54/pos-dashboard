@@ -8,16 +8,52 @@ $(document).ready(function() {
         }
     });
 
+    $(document).on('change', '#filter_status', function()
+    {
+        $value = $(this).val();
+        $search_order = $('#search_order').val();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: base_url + '/orders/getOrderList',
+            data: { 'status': $value, 'search': $search_order },
+            // processData: false,
+            // contentType: false,
+            dataType: "json",
+            beforeSend: function () {
+                $('.spinner').addClass('d-none');
+            },
+            success: function (data) 
+            {
+                // console.log(data);
+                if (data.data.length != 0) {
+                    var output = '';
+                    $.each(data.data, function (i, order) {
+                        output += renderOrder(order);
+                    })
+
+                    $('.order_list').html(output);
+                    $('#total-record').html(data.all + ' Transaksi');
+
+                }
+                else {
+                    $('.order_list').html('<p align="center">Order tidak di temukan</p>');
+                    $('#total-record').html('0 Transaksi');
+                }
+            }
+        });
+    });
+
     $('#search_order').on('keyup',function()
     {
         $value = $(this).val();
-
-        console.log($value);
+        $status = $('#filter_status').val();
         $.ajax({
             type: "POST",
             dataType: "json",
             url: base_url + '/orders/getOrderList',    
-            data:{'search': $value},
+            data:{'search': $value, 'status': $status},
             // processData: false,
             // contentType: false,
             dataType: "json",
@@ -36,10 +72,12 @@ $(document).ready(function() {
                     })
 
                     $('.order_list').html(output);
+                    $('#total-record').html(data.all+' Transaksi');
                 } 
                 else
                 {
-                    $('.order_list').html('<p class="m-auto">Produk <b>#'+$value+'</b> tidak di temukan</p>');
+                    $('.order_list').html('<p align="center">Produk <b>#'+$value+'</b> tidak di temukan</p>');
+                    $('#total-record').html('0 Transaksi');
                 }
             }
         });
@@ -51,15 +89,16 @@ $(document).ready(function() {
         $(this).css('background', 'rgb(226, 226, 226)');
         e.preventDefault();
         var target  = $(this).data('order');
-        console.log(target)
+        // console.log(target)
         $('.btn-print-order-list').attr('data-id', target.id);
         $('#order_code').html(target.order_code);
+
         $('#customer_name').html(target.customer_name);
         $('#order_date').html(new Date(target.created_at).toUTCString());
         $('#store').html(target.store.store_name);
         $('#total_bayar').html('Rp. '+DecimalAsString(target.total_order));
 
-        $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id).attr('target', '_blank');
+        $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id+'?status='+target.status).attr('target', '_blank');
         $('.btn-order-order-list').removeClass('disabled').attr('href', base_url + '/kasir?order='+target.id);
         $('.btn-bayar-order-list').removeClass('disabled').attr('href', base_url + '/kasir/bayar/'+target.id);
 
@@ -96,7 +135,7 @@ function renderOrder(order)
     let hours = `${created_date.getHours()}`.padStart(2, '0')
     let minutes = `${created_date.getMinutes()}`.padStart(2, '0')
 
-    var html = '<div class="pl-2 pt-4 pr-2 order_list_detail data-order="'+JSON.stringify(order)+'">';
+    var html = "<div class='pl-2 pt-4 pr-2 order_list_detail' data-order='"+JSON.stringify(order)+"'>";
         html += '<div class="row border-bottom border-dark pb-2">';
             html += '<div class="col">';
                 html += '<span class="m-0">#'+order.customer_name+'</span><br>';

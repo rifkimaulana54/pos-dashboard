@@ -438,7 +438,7 @@ tr.shown td.details-control {
 .example-1 {
     position: relative;
     overflow-y: scroll;
-    height: 77vh;
+    height: 76.5vh;
 }
 
 .product-show {
@@ -493,7 +493,7 @@ tr.shown td.details-control {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 63.7vh;
+    height: 63vh;
 }
 
 
@@ -535,7 +535,7 @@ tr.shown td.details-control {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 71vh;
+    height: 58vh;
 }
 
 /* Scroll detail order in order list */

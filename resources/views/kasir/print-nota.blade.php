@@ -7,13 +7,15 @@
     <title></title>
 </head>
 <body onload="window.print();">
-    <div style="width: 285px;">
+    <div style="width: 285px; margin: auto;">
         <h3  style="text-align: center; margin-bottom: 0"><b>{{$order->store->store_name}}</b></h3>
         <div style="text-align: center"><small>{{$order->store->store_address}}</small></div>
         <hr>
-        <div style="margin: 15px; auto 20px; auto">
-            <span>{{date('d-m-Y H:i:s')}}</span>
+        <div style="margin: 15px auto 0 15px">
+            <small>{{date('d-m-Y H:i:s')}}</small>
         </div>
+        <div style="margin: 0 auto 0 15px">Order Code: {{$order->order_code}}</div>
+        <div style="margin: 0 auto 0 15px">Customer: {{$order->customer_name}}</div>
         <table style="margin: 15px; auto 20px; auto">
             <tbody>
                 @php
@@ -23,7 +25,7 @@
                 @foreach ($order->mapping as $item)
                     <tr>
                         <td width="130">{{$item->product->product_display_name}}</td>
-                        <td width="30" style="font-size: 15px; cursor: pointer">
+                        <td width="30" align="center" style="font-size: 15px; cursor: pointer">
                             {{$item->order_qty}}
                         </td>
                         <td width="80"><small>Rp. </small> {{number_format($item->order_subtotal)}}</td>
@@ -43,18 +45,24 @@
                         <small>Rp. </small> {{number_format($grandtotal)}} <input type="hidden" id="grandtotal" value="{{$grandtotal}}"> 
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2">Tunai</td>
-                    <td><small>Rp. </small>{{number_format($tunai)}}</td>
-                </tr>
-                <tr>
-                    <td colspan="2">Kembali</td>
-                    <td><small>Rp. </small>{{($tunai == 0 ? 0 : number_format($tunai-$grandtotal))}}</td>
-                </tr>
+                @if (!empty($_GET['status']) && $_GET['status'] == 2)
+                    <tr>
+                        <td colspan="3" align="center" style="color: red"><strong>Belum Bayar</strong></td>
+                    </tr>
+                @else
+                    <tr>
+                        <td colspan="2">Tunai</td>
+                        <td><small>Rp. </small>{{number_format($tunai)}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Kembali</td>
+                        <td><small>Rp. </small>{{($tunai == 0 ? 0 : number_format($tunai-$grandtotal))}}</td>
+                    </tr>
+                @endif
             </tfoot>
         </table>
         <hr>
-        <h3 style="text-align: center"><b>Terimakasih</b></h3>
+        <h2 style="text-align: center"><b>Terimakasih</b></h3>
     </div>
 </body>
 </html>

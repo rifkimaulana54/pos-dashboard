@@ -70,14 +70,18 @@ class KasirController extends Controller
         $postParam = array(
             'endpoint'  => 'v' . config('app.api_ver') . '/order',
             'form_params' => array(
-                'filter' => json_encode(array(
-                    'store_id' => $request->store_id,
+                'filter' => array(
                     'status' => 2,
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
-                ))
+                )
             ),
             'headers' => ['Authorization' => 'Bearer ' . $user_token]
         );
+
+        if(!GlobalHelper::userRole($request, 'superadmin'))
+            $postParam['form_params']['filter']['store_id'] = $request->store_id;
+        if(!empty($postParam['form_params']['filter']))
+            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
 
         $orderApi = OrderApi::postData($postParam);
         $orderDecode = json_decode($orderApi);
@@ -407,15 +411,18 @@ class KasirController extends Controller
         $postParam = array(
             'endpoint'  => 'v' . config('app.api_ver') . '/order',
             'form_params' => array(
-                'filter' => json_encode(array(
-                    'store_id' => $request->store_id,
+                'filter' => array(
                     'status' => 2,
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
-                ))
+                )
             ),
             'headers' => ['Authorization' => 'Bearer ' . $user_token]
         );
 
+        if(!GlobalHelper::userRole($request, 'superadmin'))
+            $postParam['form_params']['filter']['store_id'] = $request->store_id;
+        if(!empty($postParam['form_params']['filter']))
+            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
         $orderApi = OrderApi::postData($postParam);
         $orderDecode = json_decode($orderApi);
 

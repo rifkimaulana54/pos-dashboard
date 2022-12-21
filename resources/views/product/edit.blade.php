@@ -117,6 +117,33 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                {{-- @if(!empty($stores))  --}}
+                                    <label for="store">Store *</label>
+                                    <div class="sepH_a">
+                                        <a href="#" class="btn btn-link btn-xs" id="perm_select_all">Select All</a>
+                                        @if(!empty($role->stores) && !in_array($role->id,$restricted_ids))
+                                            <a href="#" class="btn btn-link btn-xs" id="perm_deselect_all">Deselect All</a>
+                                        @endif
+                                    </div>
+                                    @if(!empty($role->stores) && in_array($role->id,($restricted_ids)))
+                                        @foreach($role->stores as $permission)
+                                            <input type="hidden" name="store[]" value="{{$permission}}">
+                                        @endforeach
+                                    @endif
+                                    <div class="col-sm-12">
+                                        <select multiple="multiple" id="store" name="store[]" class="multi-select multi-select-store" data-label="Store" required="">
+                                            {{-- @foreach($stores as $store)
+                                            <optgroup label="{!! strtoupper($group) !!}"> --}}
+                                                @foreach($stores as $store)
+                                                    <option value="{{$store->id}}" @php if(!empty($product->stores) && in_array($store->id,$product->stores)) { echo 'selected'; if(in_array($product->id,($restricted_ids))) echo ' disabled'; } @endphp>{{$store->store_name}}</option>
+                                                @endforeach
+                                            {{-- </optgroup>
+                                            @endforeach --}}
+                                        </select>
+                                    </div>
+                                {{-- @endif --}}
+                            </div>
+                            <div class="form-group">
                                 <label for="description">Product Image *</label>
                                 <div class="card">
                                     <div class="card-body text-center">

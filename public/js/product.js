@@ -77,6 +77,68 @@ $(document).ready(function() {
             }
         })
     }
+
+    if($('.multi-select-store').length)
+    {
+        $('.multi-select-store').multiSelect({
+            selectableOptgroup: true,
+            selectableHeader: '<div class="custom-header-search"><input type="text" class="search-input input-sm form-control" autocomplete="off" placeholder="Available Store..."></div>',
+            selectionHeader: '<div class="custom-header-search"><input type="text" class="search-input input-sm form-control" autocomplete="off" placeholder="Selected Store..."></div>',
+            afterInit: function(ms){
+                var that = this,
+                $selectableSearch = that.$selectableUl.prev('div').children('input'),
+                $selectionSearch = that.$selectionUl.prev('div').children('input'),
+                selectableSearchString = '#'+that.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
+                selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
+                
+                that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
+                .on('keydown', function(e){
+                    if (e.which === 40){
+                        that.$selectableUl.focus();
+                        return false;
+                    }
+                });
+                
+                that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
+                .on('keydown', function(e){
+                    if (e.which == 40){
+                        that.$selectionUl.focus();
+                        return false;
+                    }
+                });
+            },
+            afterSelect: function(){
+                this.qs1.cache();
+                this.qs2.cache();
+            },
+            afterDeselect: function(){
+                this.qs1.cache();
+                this.qs2.cache();
+            }
+        }); 
+
+        $(document).on('click', '#perm_select_all', function(e) {
+            e.preventDefault();
+            $('.multi-select-store').multiSelect('select_all');
+            return false;
+        });
+        $(document).on('click', '#perm_deselect_all', function(e) {
+            e.preventDefault();
+            $('.multi-select-store').multiSelect('deselect_all');
+            return false;
+        });
+
+        $(document).on('change','#role',function(e)
+        {
+            var selected_role = $(this).val();
+            if(selected_role)
+            {
+                get_permission_list(selected_role);
+            }
+        });
+
+        $('#role').trigger('change');
+    }
 });
 
 

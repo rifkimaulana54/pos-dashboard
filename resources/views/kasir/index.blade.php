@@ -135,7 +135,7 @@
                 <div class="example-2 scrollbar-deep-order bord-orderered-deep-order thin-order">
                     <table>
                         <tbody id="list_order">
-                            @if(Session::has('flash_error'))
+                            {{-- @if(Session::has('flash_error'))
                                 <div class="alert alert-success alert-dismissible fade show mt-2 mr-2 not-product" role="alert">
                                     {!! session('flash_error') !!}
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -150,7 +150,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                            @endif
+                            @endif --}}
                             <p class="m-3 not-product">Belum ada product yang dipilih!</p>
                             <tr class="d-none tr_clone_items">
                                 <td>

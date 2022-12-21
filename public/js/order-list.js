@@ -22,7 +22,7 @@ $(document).ready(function() {
             // contentType: false,
             dataType: "json",
             beforeSend: function () {
-                $('.spinner').addClass('d-none');
+                $('.spinner').removeClass('d-none');
             },
             success: function (data) 
             {
@@ -94,13 +94,24 @@ $(document).ready(function() {
         $('#order_code').html(target.order_code);
 
         $('#customer_name').html(target.customer_name);
-        $('#order_date').html(new Date(target.created_at).toUTCString());
+        
+        let datetime = new Date(target.created_at);
+            dateString = new Date(datetime).toUTCString();
+            dateString = dateString.split(' ').slice(0, 4).join(' ');
+            hours = `${datetime.getHours()}`.padStart(2, '0')
+            minutes = `${datetime.getMinutes()}`.padStart(2, '0')
+
+        $('#order_date').html(dateString+' '+ hours+':'+minutes);
         $('#store').html(target.store.store_name);
         $('#total_bayar').html('Rp. '+DecimalAsString(target.total_order));
 
         $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id+'?status='+target.status).attr('target', '_blank');
         $('.btn-order-order-list').removeClass('disabled').attr('href', base_url + '/kasir?order='+target.id);
-        $('.btn-bayar-order-list').removeClass('disabled').attr('href', base_url + '/kasir/bayar/'+target.id);
+        var status = $('#filter_status').val();
+        if(status == 2)
+            $('.btn-bayar-order-list').removeClass('disabled').attr('href', base_url + '/kasir/pay-order/'+target.id);
+        else
+            $('.btn-bayar-order-list').addClass('disabled')
 
         var output = '<table class="table text-dark" style="margin-bottom: 13px;">';
             output += '<tr>';

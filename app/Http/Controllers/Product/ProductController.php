@@ -73,13 +73,43 @@ class ProductController extends Controller
         $catApi = ProductApi::postData($postParam);
         $catDecode = json_decode($catApi);
 
+        if(!empty($catDecode) && $catDecode->code !== 200)
+        {
+            \Session::flash('flash_error', $catDecode->message);
+            return redirect('products');
+        }
+
         if(!empty($catDecode->data->categories))
             $categories = $catDecode->data->categories;
+        
+        $getParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/our-store',
+            'form_params' => array(
+                'filter' => json_encode(array(
+                    'status' => 1,
+                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                ))
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
+        );
+
+        $posApi = UserApi::postData( $getParam );
+        $dataDecode = json_decode($posApi);
+
+        if(!empty($dataDecode) && $dataDecode->code !== 200)
+        {
+            \Session::flash('flash_error', $dataDecode->message);
+            return redirect('products');
+        }
+
+        if(!empty($dataDecode->data->stores))
+            $stores = $dataDecode->data->stores;
 
         return view('product.edit', 
             [
                 'request'    => $request,
-                'categories' => !empty($categories) ? $categories : array()
+                'categories' => !empty($categories) ? $categories : array(),
+                'stores' => !empty($stores) ? $stores : array()
             ]
         );
     }

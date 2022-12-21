@@ -136,34 +136,34 @@
                     </div>
                 </div>
                 <div class="row m-0 pt-2" style="background-color: rgb(203, 203, 203)">
-                    <div class="col-md-9 p-2" style="color: black">
+                    <div class="col-md-6 p-2" style="color: black">
                         <h4 class="ml-2"><b>TOTAL</b></h4>
                     </div>
-                    <div class="col-md-3 p-2 text-right" style="color: black">
+                    <div class="col-md-6 p-2 text-right" style="color: black">
                         <h4 class="mr-4"><b id="total_bayar">Rp. 0</b></h4>
                     </div>
                 </div>
                 <div class="row m-0">
-                    <div class="col-md-8 p-2">
+                    <div class="col-md-6 p-2">
                         <a href="#" class="btn btn-print-order-list text-light ml-4 disabled" style="background-color: black">
                             <b><i class="fas fa-fw fa-print"></i>PRINT</b>
                         </a>
                     </div>
-                    <div class="col-md-4 p-2 d-flex">
-                        <a href="#" class="btn btn-light btn-order-order-list text-dark mr-2 disabled">
-                            <b><i class="fas fa-fw fa-save"></i>ORDER</b>
-                        </a>
-                        <a href="#" class="btn btn-bayar-order-list text-light disabled" style="background-color: black">
+                    <div class="col-md-6 p-2">
+                        <a href="#" class="btn btn-bayar-order-list float-right text-light disabled" style="background-color: black">
                             <b><i class="fas fa-fw fa-save"></i>BAYAR</b>
+                        </a>
+                        <a href="#" class="btn btn-light float-right btn-order-order-list text-dark mr-2 disabled">
+                            <b><i class="fas fa-fw fa-save"></i>ORDER</b>
                         </a>
                     </div>
                     {{-- <button type="submit" class="btnSubmit d-none"></button> --}}
                 </div>
             {{-- </form> --}}
         </div>
-        <div class="overlay d-none spinner">
-            <i class="fa fa-fw fa-spinner fa-spin"></i>
-        </div>
+    </div>
+    <div class="overlay d-none spinner">
+        <i class="fa fa-fw fa-spinner fa-spin"></i>
     </div>
     
     <!-- Grid row -->

@@ -190,7 +190,7 @@ class KasirController extends Controller
         {
             \Session::flash('flash_success', $dataDecode->message);
             if(!empty($request->btn_bayar))
-                return redirect('kasir/bayar/1');
+                return redirect('kasir/pay-order/' . $dataDecode->data->order->id);
             else
                 return redirect('kasir/order-list');
         }
@@ -301,6 +301,7 @@ class KasirController extends Controller
         $orderApi = OrderApi::updateData( $postParam );
         $dataDecode = json_decode($orderApi);
 
+        // dd($dataDecode);
         if(!empty($dataDecode->code) && $dataDecode->code != 200)
         {
             $error_message = $dataDecode->message;
@@ -312,7 +313,7 @@ class KasirController extends Controller
         {
             \Session::flash('flash_success', $dataDecode->message);
             if(!empty($request->btn_bayar))
-                return redirect('kasir/bayar/1');
+                return redirect('kasir/pay-order/'.$dataDecode->data->order->id);
             else
                 return redirect('kasir/order-list');
         }
@@ -431,6 +432,61 @@ class KasirController extends Controller
 
         // dd($orderDecode);
         return view('kasir.order-list', [
+            'request' => $request,
+            'metas' => !empty($metas) ? $metas : array(),
+            'orders' => !empty($orders) ? $orders : array(),
+        ]);
+    }
+
+    public function pay_order(Request $request)
+    {
+        if(!GlobalHelper::userCan($request, 'read-orders'))
+        {
+            \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
+            return redirect('home');
+        }
+
+        $user_token = $request->user_token;
+
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/detail/'.$request->user_id,
+            'form_params' => array(),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        $userApi = UserApi::getData($postParam);
+        $userDecode = json_decode($userApi);
+
+        if (!empty($userDecode->data->user))
+            $user = $userDecode->data->user;
+        
+        if(!empty($user->metas))
+            foreach ($user->metas as $meta) 
+                $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
+
+        $postParam = array(
+            'endpoint'  => 'v' . config('app.api_ver') . '/order',
+            'form_params' => array(
+                'filter' => array(
+                    'status' => 2,
+                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
+                )
+            ),
+            'headers' => ['Authorization' => 'Bearer ' . $user_token]
+        );
+
+        if(!GlobalHelper::userRole($request, 'superadmin'))
+            $postParam['form_params']['filter']['store_id'] = $request->store_id;
+        if(!empty($postParam['form_params']['filter']))
+            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
+        $orderApi = OrderApi::postData($postParam);
+        $orderDecode = json_decode($orderApi);
+
+        if (!empty($orderDecode->data->orders))
+            $orders = $orderDecode->data;
+
+        // dd($orderDecode);
+        return view('kasir.pay-order', [
             'request' => $request,
             'metas' => !empty($metas) ? $metas : array(),
             'orders' => !empty($orders) ? $orders : array(),

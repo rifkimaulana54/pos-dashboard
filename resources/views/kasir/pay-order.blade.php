@@ -49,25 +49,19 @@
     <div class="row" id="navbar">
         <div class="col-md-4 pl-0 pt-0 pr-0">
             <div class="border-bottom border-dark ">
-                <p class="mt-3 ml-3"><b>#rifki CO/22/12/0017</b></p>
+                <p class="mt-3 ml-3"><b>@if(!empty($order->customer_name)) #{{$order->customer_name}} @endif @if(!empty($order->order_code)) {{$order->order_code}} @endif</b></p>
             </div>
             <div class="" style="height: 73.2vh">
                 <table class="table text-dark" style="margin-bottom: 13px;">
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td width="50%">Soto</td>
-                        <td>Rp. 10,000</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td width="50%">Soto</td>
-                        <td>Rp. 10,000</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td width="50%">Soto</td>
-                        <td>Rp. 10,000</td>
-                    </tr>
+                    @if(!empty($order->mapping))
+                        @foreach ($order->mapping as $item)
+                            <tr>
+                                <td class="text-center">{{$item->order_qty}}</td>
+                                <td width="50%">{{$item->product->product_display_name}}</td>
+                                <td>Rp. {{number_format($item->order_subtotal)}}</td>
+                            </tr>
+                        @endforeach
+                    @endif
                 </table>
             </div>
             <div class="row m-0" style="background-color: rgb(0, 0, 0)">
@@ -75,7 +69,7 @@
                     <h4><b><i class="fas fa-fw fa-credit-card"></i> TOTAL</b></h4>
                 </div>
                 <div class="col text-center pt-2" style="color: white">
-                    <h4><b>Rp. 10,000,000</b></h4>
+                    <h4><b>@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b></h4>
                 </div>
             </div>
         </div>
@@ -89,7 +83,11 @@
                         <b>TAGIHAN</b>
                     </div>
                     <div class="col-5">
-                        <b>Rp. 10,000,000</b>
+                        @if(!empty($order) && $order->status == 4)
+                            <b>Rp. 0</b>
+                        @else
+                            <b>@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b>
+                        @endif
                     </div>
                 </div>
                 <div class="row pt-2 pl-3">
@@ -97,7 +95,7 @@
                         <b>BAYAR TUNAI</b>
                     </div>
                     <div class="col-5">
-                        <b>Rp. 9,000,000</b>
+                        <b id="pay">Rp. 0</b>
                     </div>
                 </div>
                 <hr class="mb-0" style="width:95%;height:2px;color:rgb(0, 0, 0);background-color:rgb(0, 0, 0)">
@@ -106,7 +104,11 @@
                         <b>SISA TAGIHAN</b>
                     </div>
                     <div class="col-5">
-                        <b>Rp. 1,000,000</b>
+                        @if(!empty($order) && $order->status == 4)
+                            <b>Rp. 0</b>
+                        @else
+                            <b id="bill">@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b>
+                        @endif
                     </div>
                 </div>
                 <div class="row pt-2 pl-3">
@@ -114,12 +116,12 @@
                         <b>Kembali</b>
                     </div>
                     <div class="col-5">
-                        <b>Rp. 0</b>
+                        <b id="change">Rp. 0</b>
                     </div>
                 </div>
             </div>
-            <div class="row m-0" style="background-color: rgb(160, 160, 160)">
-                <div class="col text-center pt-2" style="color: rgb(0, 0, 0)">
+            <div class="row m-0 btn-print-bayar" data-id="{{$order->id}}">
+                <div class="col text-center pt-2">
                     <h4><b><i class="fas fa-fw fa-print"></i> PRINT</b></h4>
                 </div>
             </div>
@@ -131,14 +133,21 @@
             
             <div class="" style="height: 73.2vh">
                 <div class="text-center p-2">
-                    <button class="btn btn-block" style="background-color: rgb(0, 0, 0); color:white"><b>UANG PAS</b></button>
+                    @if(!empty($order) && $order->status == 4)
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-fw fa-check"></i> <b>Sudah Bayar</b>
+                        </div>
+                    @endif
+                    <button class="btn btn-block" id="pay-pas" @if(!empty($order) && $order->status == 4) disabled @endif data-pay="@if(!empty($order)){{$order->total_order}}@endif" style="background-color: rgb(0, 0, 0); color:white"><b>UANG PAS</b></button>
                 </div>
                 <div class="form-group text-center p-2">
-                    <input type="number" class="form-control" id="" autofocus placeholder="Enter Bayar">
+                    <input type="text" class="form-control numbering enter-pay" @if(!empty($order) && $order->status == 4) disabled @endif autofocus placeholder="Enter Bayar">
+                    <input type="hidden" id="total" value="@if(!empty($order)){{$order->total_order}}@endif">
+                    <input type="hidden" id="tunai" value="0">
                 </div>
             </div>
-            <div class="row m-0" style="background-color: rgb(0, 0, 0)">
-                <div class="col text-center pt-2" style="color: white">
+            <div class="row m-0 btn-prosess" style="opacity:0.5" data-id-order="{{$order->id}}">
+                <div class="col text-center pt-2">
                     <h4><b><i class="fas fa-fw fa-credit-card"></i> PROSES BAYAR</b></h4>
                 </div>
             </div>
@@ -152,7 +161,7 @@
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="{{asset('css/custom.css')}}">
+    {{-- <link rel="stylesheet" href="{{asset('css/custom.css')}}"> --}}
 @stop
 
 @section('js')
@@ -162,5 +171,5 @@
     <script src="{{ asset('js/pos.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.4/daterangepicker.min.js" type="text/javascript"></script>
-    <script src="{{ asset('js/order-list.js') }}"></script>
+    <script src="{{ asset('js/pay-order.js') }}"></script>
 @stop

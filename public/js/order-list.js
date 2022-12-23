@@ -30,6 +30,10 @@ $(document).ready(function() {
                 if (data.data.length != 0) {
                     var output = '';
                     $.each(data.data, function (i, order) {
+                        if(order.status == 4)
+                            $('.order_list').addClass('bg-success');
+                        else
+                            $('.order_list').removeClass('bg-success');
                         output += renderOrder(order);
                     })
 
@@ -68,6 +72,10 @@ $(document).ready(function() {
                     var output = '';
                     $.each(data.data, function(i, order)
                     {
+                        if(order.status == 4)
+                            $('.order_list').addClass('bg-success');
+                        else
+                            $('.order_list').removeClass('bg-success');
                         output += renderOrder(order);
                     })
 

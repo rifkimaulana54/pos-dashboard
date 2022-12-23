@@ -641,28 +641,37 @@ tr.shown td.details-control {
     border: none;
 }
 
-.btn-order {
+.btn-order, .btn-print-bayar {
     color: #000000;
 }
 
-.order-price, .navbar-top {
+.btn-print-bayar {
+    background-color: rgb(160, 160, 160);
+}
+
+.order-price, .navbar-top, .btn-prosess {
     background-color: #000000;
     color: #fff;
 }
 
 .btn-bayar:hover {
     cursor: pointer;
-    background: rgb(127, 127, 127);
+    background: rgb(193 193 193);
     color: #000000;
-
 }
 
-.btn-hapus:hover {
+.btn-hapus:hover, .btn-simpan:hover, .btn-list-order:hover, .order_list_detail:hover, .btn-print-bayar:hover {
     cursor: pointer;
-    background: #999;
+    background: rgb(200, 200, 200);
 }
 
-.btn-simpan:hover {
+.btn-print-bayar:hover{
+    cursor: pointer;
+        background: rgb(107, 107, 107);
+        color: #000000;
+}
+
+/* .btn-simpan:hover {
     cursor: pointer;
     background: #999;
 }
@@ -670,10 +679,9 @@ tr.shown td.details-control {
 .btn-list-order:hover {
     cursor: pointer;
     background: #999;
-}
-
-.order_list_detail:hover {
+*/
+.bg-success > .order_list_detail {
     cursor: pointer;
-    background: rgb(200, 200, 200);
+    color: rgb(0, 0, 0);
 
 }

@@ -412,6 +412,7 @@ class KasirController extends Controller
         $postParam = array(
             'endpoint'  => 'v' . config('app.api_ver') . '/order',
             'form_params' => array(
+                'sort' => 'asc',
                 'filter' => array(
                     'status' => 2,
                     'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
@@ -438,7 +439,7 @@ class KasirController extends Controller
         ]);
     }
 
-    public function pay_order(Request $request)
+    public function pay_order(Request $request, $id)
     {
         if(!GlobalHelper::userCan($request, 'read-orders'))
         {
@@ -449,47 +450,26 @@ class KasirController extends Controller
         $user_token = $request->user_token;
 
         $postParam = array(
-            'endpoint'  => 'v' . config('app.api_ver') . '/detail/'.$request->user_id,
+            'endpoint'  => 'v' . config('app.api_ver') . '/order/'.$id,
             'form_params' => array(),
             'headers' => ['Authorization' => 'Bearer ' . $user_token]
         );
 
-        $userApi = UserApi::getData($postParam);
-        $userDecode = json_decode($userApi);
-
-        if (!empty($userDecode->data->user))
-            $user = $userDecode->data->user;
-        
-        if(!empty($user->metas))
-            foreach ($user->metas as $meta) 
-                $metas[$meta->meta_key] = GlobalHelper::maybe_unserialize($meta->meta_value);
-
-        $postParam = array(
-            'endpoint'  => 'v' . config('app.api_ver') . '/order',
-            'form_params' => array(
-                'filter' => array(
-                    'status' => 2,
-                    'company_id' => !empty(session('companies')) ? array_column(session('companies'), 'id') : 1,
-                )
-            ),
-            'headers' => ['Authorization' => 'Bearer ' . $user_token]
-        );
-
-        if(!GlobalHelper::userRole($request, 'superadmin'))
-            $postParam['form_params']['filter']['store_id'] = $request->store_id;
-        if(!empty($postParam['form_params']['filter']))
-            $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
-        $orderApi = OrderApi::postData($postParam);
+        $orderApi = OrderApi::getData($postParam);
         $orderDecode = json_decode($orderApi);
 
-        if (!empty($orderDecode->data->orders))
-            $orders = $orderDecode->data;
+        if(!empty($orderDecode->code) && $orderDecode->code != 200)
+        {
+            $error_message = $orderDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return redirect('kasir/pay-order/'.$id)->withInput();
+        }
 
         // dd($orderDecode);
         return view('kasir.pay-order', [
             'request' => $request,
-            'metas' => !empty($metas) ? $metas : array(),
-            'orders' => !empty($orders) ? $orders : array(),
+            'order' => !empty($orderDecode->data->order) ? $orderDecode->data->order : array(),
         ]);
     }
 
@@ -527,5 +507,38 @@ class KasirController extends Controller
                 'order'   => !empty($order) ? $order : array(),
             ]
         );
+    }
+
+    public function update_pay(Request $request, $id)
+    {
+        if(!GlobalHelper::userCan($request,'update-orders'))
+        {
+            $return['error'] = 'You don\'t have permission to access the page you requested.';
+            return response()->json($return, $this->successStatus);
+        }
+
+        $user_token = $request->user_token;
+
+        $putParam = array(
+            'endpoint'  => 'v'.config('app.api_ver').'/order/'.$id,
+            'form_params' => array(
+                'status'  => 4,
+            ),
+            'headers' => [ 'Authorization' => 'Bearer '. $user_token ]
+        );
+
+        $orderApi = OrderApi::updateData( $putParam );
+        $orderDecode = json_decode($orderApi);
+
+        // dd($orderDecode);
+        if(!empty($orderDecode->code) && $orderDecode->code != 200)
+        {
+            $error_message = $orderDecode->message;
+            \Session::flash('flash_error', $error_message);
+
+            return redirect('kasir/pay-order/'.$id)->withInput();
+        }
+        else
+            return redirect('kasir/print/'.$id.'?pay='.$_GET['pay'])->withInput();
     }
 }

@@ -20,7 +20,7 @@
             <tbody>
                 @php
                     $grandtotal = 0;
-                    $tunai = 500000;
+                    $pay = !empty($_GET['pay']) ? $_GET['pay'] : 0;
                 @endphp
                 @foreach ($order->mapping as $item)
                     <tr>
@@ -49,14 +49,22 @@
                     <tr>
                         <td colspan="3" align="center" style="color: red"><strong>Belum Bayar</strong></td>
                     </tr>
+                @elseif(!empty($_GET['status']) && $_GET['status'] == 4)
+                    <tr>
+                        
+                    </tr>
                 @else
                     <tr>
                         <td colspan="2">Tunai</td>
-                        <td><small>Rp. </small>{{number_format($tunai)}}</td>
+                        @if ($pay)
+                            <td><small>Rp. </small>{{number_format($pay)}}</td>
+                        @else
+                            <td><small>Rp. </small> 0</td>
+                        @endif
                     </tr>
                     <tr>
                         <td colspan="2">Kembali</td>
-                        <td><small>Rp. </small>{{($tunai == 0 ? 0 : number_format($tunai-$grandtotal))}}</td>
+                        <td><small>Rp. </small>{{($pay == 0 ? 0 : number_format($pay-$grandtotal))}}</td>
                     </tr>
                 @endif
             </tfoot>

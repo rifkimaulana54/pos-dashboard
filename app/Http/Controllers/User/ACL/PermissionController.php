@@ -25,10 +25,10 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         //
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('users/acl/permissions');
+            return redirect('home');
         }
 
         return view('user.acl.permission.index',[
@@ -44,10 +44,10 @@ class PermissionController extends Controller
     public function create(Request $request)
     {
         //
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request, 'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('users/acl/permissions');
+            return redirect('home');
         }
 
         return view('user.acl.permission.edit',[
@@ -65,10 +65,10 @@ class PermissionController extends Controller
     {
         //
 
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request, 'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
-            return redirect('users/acl/permissions');
+            return redirect('home');
         }
 
         $user_token = $request->user_token;
@@ -145,7 +145,7 @@ class PermissionController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/permissions');
@@ -202,7 +202,7 @@ class PermissionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/permissions');
@@ -263,7 +263,7 @@ class PermissionController extends Controller
         {
             //$user = unserialize(Cookie::get(session('authenticated')));
 
-            if(!GlobalHelper::userRole($request,'superadmin'))
+            if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -312,7 +312,7 @@ class PermissionController extends Controller
         {
             //$user = unserialize(Cookie::get(session('authenticated')));
 
-            if(!GlobalHelper::userRole($request,'superadmin'))
+            if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -358,7 +358,7 @@ class PermissionController extends Controller
             'sEcho' => (int)$request->input('sEcho',true)
         );
 
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request, 'admin'))
         {
             $return['error'] = 'You don\'t have permission to access the page you requested.';
             return response()->json($return, $this->successStatus);

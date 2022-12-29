@@ -26,7 +26,7 @@
                     <div class="card">
                     <!-- /.card-header -->
                         <div class="card-body">
-                            @if (GlobalHelper::userRole($request,'superadmin'))
+                            @if (GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin'))
                                 <a class="btn btn-primary btn-sx" href="{{ url('users/acl/permissions/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Permission')}}</a>
                             @endif
                             @if(Session::has('flash_error'))

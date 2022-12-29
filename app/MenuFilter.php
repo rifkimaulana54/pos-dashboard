@@ -15,7 +15,7 @@ class MenuFilter implements FilterInterface
         {
             $request = request();
 
-            if(!GlobalHelper::userRole($request,'superadmin'))
+            if(!GlobalHelper::userRole($request,'superadmin') || !GlobalHelper::userRole($request, 'admin'))
             {
                 if (!isset($item['can']) || (isset($item['can']) && !is_array($item['can']) && $item['can'] != 'all' && !in_array($item['can'],$request->user_can)))
                     return false;

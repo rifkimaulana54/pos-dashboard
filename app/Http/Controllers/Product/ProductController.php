@@ -517,10 +517,10 @@ class ProductController extends Controller
                                     break;
                             }
 
-                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-products') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
+                            if(GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request, 'admin') || (GlobalHelper::userCan($request,'update-item-products') && !empty(session('company')['id']) && session('company')['id'] == $product->company_id))
                                 $product->update = 1;
 
-                            if (GlobalHelper::userRole($request, 'superadmin') || (GlobalHelper::userCan($request, 'delete-item-products') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
+                            if (GlobalHelper::userRole($request, 'superadmin') || GlobalHelper::userRole($request, 'admin') || (GlobalHelper::userCan($request, 'delete-item-products') && !empty(session('company')['id']) && session('company')['id'] == $product->company_id))
                                 $product->delete = 1;
                             
                             if(!empty($product->metas))

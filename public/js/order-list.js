@@ -114,13 +114,17 @@ $(document).ready(function() {
         $('#total_bayar').html('Rp. '+DecimalAsString(target.total_order));
 
         $('.btn-print-order-list').removeClass('disabled').attr('href', base_url+'/kasir/print/'+target.id+'?status='+target.status).attr('target', '_blank');
-        $('.btn-order-order-list').removeClass('disabled').attr('href', base_url + '/kasir?order='+target.id);
         var status = $('#filter_status').val();
         if(status == 2)
+        {
+            $('.btn-order-order-list').removeClass('disabled').attr('href', base_url + '/kasir?order='+target.id);
             $('.btn-bayar-order-list').removeClass('disabled').attr('href', base_url + '/kasir/pay-order/'+target.id);
+        }
         else
+        {
+            $('.btn-order-order-list').addClass('disabled')
             $('.btn-bayar-order-list').addClass('disabled')
-
+        }
         var output = '<table class="table text-dark" style="margin-bottom: 13px;">';
             output += '<tr>';
                 output += '<th class="text-center">Qty</th>';

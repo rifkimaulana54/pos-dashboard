@@ -24,7 +24,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request, 'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('home');
@@ -44,7 +44,7 @@ class RoleController extends Controller
      */
     public function create(Request $request)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/roles');
@@ -80,7 +80,7 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request, 'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/roles');
@@ -141,7 +141,7 @@ class RoleController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/roles');
@@ -198,7 +198,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             \Session::flash('flash_error', 'You don\'t have permission to access the page you requested.');
             return redirect('users/acl/roles');
@@ -265,7 +265,7 @@ class RoleController extends Controller
         {
             //$user = unserialize(Cookie::get(session('authenticated')));
 
-            if(!GlobalHelper::userRole($request,'superadmin'))
+            if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -319,7 +319,7 @@ class RoleController extends Controller
         {
             //$user = unserialize(Cookie::get(session('authenticated')));
 
-            if(!GlobalHelper::userRole($request,'superadmin'))
+            if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
             {
                 $return['error'] = 'You don\'t have permission to access the page you requested.';
                 return response()->json($return, $this->successStatus);
@@ -365,7 +365,7 @@ class RoleController extends Controller
             'sEcho' => (int)$request->input('sEcho',true)
         );
 
-        if(!GlobalHelper::userRole($request,'superadmin'))
+        if(!GlobalHelper::userRole($request,'superadmin') && !GlobalHelper::userRole($request,'admin'))
         {
             $return['error'] = 'You don\'t have permission to access the page you requested.';
             return response()->json($return, $this->successStatus);
@@ -441,7 +441,7 @@ class RoleController extends Controller
 
                             $protected_ids = [1,2,3,4,5];
 
-                            if(GlobalHelper::userCan($request,'delete-users') && !in_array($role->id,$protected_ids))
+                            if(GlobalHelper::userCan($request,'delete-users') || GlobalHelper::userRole($request, 'admin') && !in_array($role->id,$protected_ids))
                                 $role->delete = 1;
                         }
 

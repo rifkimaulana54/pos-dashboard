@@ -605,10 +605,10 @@ class UserController extends Controller
                                 $u->role_name = implode(', ',array_map('ucwords',$u->roles));
                             }
 
-                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-users') && !empty(session('company')['id']) && session('company')['id'] == $u->company_id))
+                            if(GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin') || (GlobalHelper::userCan($request,'update-users') && !empty(session('company')['id']) && session('company')['id'] == $u->company_id))
                                 $u->update = 1;
 
-                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'delete-users') && $u->id != 1 && !empty(session('company')['id']) && session('company')['id'] == $u->company_id))
+                            if(GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin') || (GlobalHelper::userCan($request,'delete-users') && $u->id != 1 && !empty(session('company')['id']) && session('company')['id'] == $u->company_id))
                                 $u->delete = 1;
 
                             if(!empty($u->metas))

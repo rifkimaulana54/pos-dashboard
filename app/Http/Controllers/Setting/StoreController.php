@@ -488,10 +488,10 @@ class StoreController extends Controller
                             //     $u->role_name = implode(', ',$user_roles);
                             // }
 
-                            if(GlobalHelper::userRole($request,'superadmin') || (GlobalHelper::userCan($request,'update-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
+                            if(GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request, 'admin') || (GlobalHelper::userCan($request,'update-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
                                 $l->update = 1;
 
-                            if (GlobalHelper::userRole($request, 'superadmin') || (GlobalHelper::userCan($request, 'delete-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
+                            if (GlobalHelper::userRole($request, 'superadmin') || GlobalHelper::userRole($request, 'admin') || (GlobalHelper::userCan($request, 'delete-item-store') && !empty(session('company')['id']) && session('company')['id'] == $p->company_id))
                                 $l->delete = 1;
 
                             // if(!empty($u->metas))

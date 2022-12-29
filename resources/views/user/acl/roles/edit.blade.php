@@ -109,7 +109,7 @@
                                     </div>
                                 @endif
                             </div>
-                            @if(!empty($role) && !in_array($role->id,$restricted_ids))
+                            @if(!empty($role))
                                 <label for="status">Status</label>
                                 <div class="col-sm-6">
                                     <input type="checkbox" data-toggle="toggle" name="status" data-on="Active" data-size="xs" data-off="Inactive" data-onstyle="success" data-offstyle="info" value="1" @if (!empty($role->status) && $role->status == 1) checked @endif>

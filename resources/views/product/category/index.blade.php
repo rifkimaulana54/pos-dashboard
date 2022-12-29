@@ -21,11 +21,12 @@
     <section class="content">
         <div class="container">
         <!-- Small boxes (Stat box) -->
+        {{-- {{dd(GlobalHelper::userRole($request,'admin'))}} --}}
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            @if (GlobalHelper::userRole($request,'superadmin'))
+                            @if (GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin'))
                                 <a class="btn btn-primary btn-sx" href="{{ url('categories/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> New Category</a>
                             @endif
                         </div>

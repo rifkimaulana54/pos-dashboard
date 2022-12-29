@@ -28,7 +28,7 @@
                         <div class="d-flex justify-content-between" style="width: 85%">
                             <div class="d-flex">
                                 <label class="py-2 mx-2">Filter</label>
-                                @if(GlobalHelper::userRole($request,'superadmin'))
+                                @if(GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin'))
                                     <div class="mr-2">
                                         <select class="form-control filter-table select2 mr-2" name="store" id="store" style="max-width: 150px">
                                             <option value="">-- Store --</option>

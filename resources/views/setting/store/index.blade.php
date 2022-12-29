@@ -25,7 +25,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            @if (GlobalHelper::userRole($request,'superadmin'))
+                            @if (GlobalHelper::userRole($request,'superadmin') || GlobalHelper::userRole($request,'admin'))
                                 <a class="btn btn-primary btn-sx" href="{{ url('stores/create') }}" style="margin-bottom: 10px"><i class="fas fa-fw fa-plus"></i> {{__('New Store')}}</a>
                             @endif
                         </div>

@@ -403,12 +403,19 @@ class OrderController extends Controller
         if($request->user_role[0] == 'kasir')
             $postParam['form_params']['filter']['store_id'] = $request->store_id;
         if(!empty($request->status))
+        {
             $postParam['form_params']['filter']['status'] = $request->status;
+            if($request->status == 4 && !empty($request->take))
+                $postParam['form_params']['take'] = 30;
+
+        }
         if(!empty($postParam['form_params']['filter']))
             $postParam['form_params']['filter'] = json_encode($postParam['form_params']['filter']);
 
+        // dd($postParam);
         $productApi = OrderApi::postData( $postParam );
         $dataDecode = json_decode($productApi);
+        // dd($dataDecode);
 
         if(!empty($dataDecode->code))
         {

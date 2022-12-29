@@ -538,6 +538,13 @@ tr.shown td.details-control {
     height: 58vh;
 }
 
+.pay-order {
+    position: relative;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 73.2vh;
+}
+
 /* Scroll detail order in order list */
 .scrollbar-list-order::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);

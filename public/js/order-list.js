@@ -17,7 +17,7 @@ $(document).ready(function() {
             type: "POST",
             dataType: "json",
             url: base_url + '/orders/getOrderList',
-            data: { 'status': $value, 'search': $search_order },
+            data: { 'status': $value, 'search': $search_order, 'take': 30 },
             // processData: false,
             // contentType: false,
             dataType: "json",

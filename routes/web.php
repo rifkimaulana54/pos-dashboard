@@ -22,6 +22,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // heartbeat
 Route::get('/heartbeat', [App\Http\Controllers\HomeController::class, 'heartbeat']);
 
+Route::post('/home/getOrderReportSummary', [App\Http\Controllers\HomeController::class, 'getOrderReportSummary']);
 // assets
     Route::post('/upload-assets', [App\Http\Controllers\Controller::class, 'uploadAsset']);
     

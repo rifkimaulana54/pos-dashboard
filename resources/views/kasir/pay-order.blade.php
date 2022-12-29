@@ -51,7 +51,7 @@
             <div class="border-bottom border-dark ">
                 <p class="mt-3 ml-3"><b>@if(!empty($order->customer_name)) #{{$order->customer_name}} @endif @if(!empty($order->order_code)) {{$order->order_code}} @endif</b></p>
             </div>
-            <div class="" style="height: 73.2vh">
+            <div class="pay-order scrollbar-detail-order bord-detail-order thin-detail-order">
                 <table class="table text-dark" style="margin-bottom: 13px;">
                     @if(!empty($order->mapping))
                         @foreach ($order->mapping as $item)
@@ -133,11 +133,9 @@
             
             <div class="" style="height: 73.2vh">
                 <div class="text-center p-2">
-                    @if(!empty($order) && $order->status == 4)
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-fw fa-check"></i> <b>Sudah Bayar</b>
-                        </div>
-                    @endif
+                    <div class="alert alert-success alert-dismissible fade show @if(!empty($order) && $order->status == 2) d-none @endif" role="alert">
+                        <i class="fas fa-fw fa-check"></i> <b>Sudah Bayar</b>
+                    </div>
                     <button class="btn btn-block" id="pay-pas" @if(!empty($order) && $order->status == 4) disabled @endif data-pay="@if(!empty($order)){{$order->total_order}}@endif" style="background-color: rgb(0, 0, 0); color:white"><b>UANG PAS</b></button>
                 </div>
                 <div class="form-group text-center p-2">

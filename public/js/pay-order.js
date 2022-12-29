@@ -16,7 +16,7 @@ $(document).ready(function() {
         $('#tunai').val(pay_pas);
         $('#bill').html('Rp. 0');
         $('#change').html('Rp. 0');
-        $('.enter-pay').val('');
+        $('.enter-pay').val(pay_pas);
         $('.btn-prosess').removeAttr('style');
         $('.btn-prosess').addClass('btn-bayar');
     });
@@ -28,6 +28,7 @@ $(document).ready(function() {
         $('#change').html('Rp. 0');
         $('.btn-prosess').css("opacity", "0.5");
         $('#tunai').val(val);
+        $('#bill').html('Rp. '+total);
 
         $('#pay').html('Rp. '+DecimalAsString(val));
         if(parseInt(total) >= parseInt(val)){
@@ -40,7 +41,6 @@ $(document).ready(function() {
             $('#change').html('Rp. ' + DecimalAsString(rest_bill));
             $('.btn-prosess').css("opacity", "1");
             $('.btn-prosess').addClass('btn-bayar');
-
         }
     })
 
@@ -69,8 +69,9 @@ $(document).ready(function() {
                 if (result.isConfirmed) 
                 {
                     $('.spinner').removeClass('d-none');
-                    const url = base_url + '/kasir/update_pay/'+id+'?pay='+tunai;
-                    window.open(url, '_blank');
+                    // const url = base_url + '/kasir/update_pay/'+id+'?pay='+tunai;
+                    // window.open(url, '_blank');
+                    window.location.href = base_url + '/kasir/update_pay/' + id + '?pay=' + tunai;
                 }
             })
 

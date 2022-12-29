@@ -536,9 +536,9 @@ class KasirController extends Controller
             $error_message = $orderDecode->message;
             \Session::flash('flash_error', $error_message);
 
-            return redirect('kasir/pay-order/'.$id)->withInput();
+            return redirect('kasir/pay-order/'.$id);
         }
         else
-            return redirect('kasir/print/'.$id.'?pay='.$_GET['pay'])->withInput();
+            return redirect('kasir/print/'.$id.'?pay='.$_GET['pay']);
     }
 }

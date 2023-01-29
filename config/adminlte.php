@@ -344,7 +344,16 @@ return [
             'can'     => [
                 'read-cms-store'
             ]
+        ],
+        [
+            'text'    => 'Store',
+            'icon'    => 'fas fa-fw fa-store',
+            'url'     => 'kasir',
+            'can'     => [
+                'read-cms-kasir'
+            ]
         ]
+        
     ],
 
     /*

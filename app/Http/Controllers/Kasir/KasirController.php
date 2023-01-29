@@ -523,6 +523,7 @@ class KasirController extends Controller
             'endpoint'  => 'v'.config('app.api_ver').'/order/'.$id,
             'form_params' => array(
                 'status'  => 4,
+                'order_cash' => !empty($_GET['pay']) ? $_GET['pay'] : '',
             ),
             'headers' => [ 'Authorization' => 'Bearer '. $user_token ]
         );
@@ -539,6 +540,8 @@ class KasirController extends Controller
             return redirect('kasir/pay-order/'.$id);
         }
         else
-            return redirect('kasir/print/'.$id.'?pay='.$_GET['pay']);
+        {
+            return redirect('kasir/pay-order/'.$id);
+        }
     }
 }

@@ -10,6 +10,7 @@
     <div style="width: 285px; margin: auto;">
         <h3  style="text-align: center; margin-bottom: 0"><b>{{$order->store->store_name}}</b></h3>
         <div style="text-align: center"><small>{{$order->store->store_address}}</small></div>
+        <div style="text-align: center"><small>Telp: {{$order->store->no_telepone}}</small></div>
         <hr>
         <div style="margin: 15px auto 0 15px">
             <small>{{date('d-m-Y H:i:s')}}</small>
@@ -20,7 +21,7 @@
             <tbody>
                 @php
                     $grandtotal = 0;
-                    $pay = !empty($_GET['pay']) ? $_GET['pay'] : 0;
+                    $pay = !empty($order->order_cash) ? $order->order_cash : 0;
                 @endphp
                 @foreach ($order->mapping as $item)
                     <tr>
@@ -49,10 +50,10 @@
                     <tr>
                         <td colspan="3" align="center" style="color: red"><strong>Belum Bayar</strong></td>
                     </tr>
-                @elseif(!empty($_GET['status']) && $_GET['status'] == 4)
+                {{-- @elseif(!empty($_GET['status']) && $_GET['status'] == 4)
                     <tr>
                         
-                    </tr>
+                    </tr> --}}
                 @else
                     <tr>
                         <td colspan="2">Tunai</td>

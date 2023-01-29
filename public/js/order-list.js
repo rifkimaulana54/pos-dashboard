@@ -97,7 +97,7 @@ $(document).ready(function() {
         $(this).css('background', 'rgb(226, 226, 226)');
         e.preventDefault();
         var target  = $(this).data('order');
-        // console.log(target)
+        console.log(target)
         $('.btn-print-order-list').attr('data-id', target.id);
         $('#order_code').html(target.order_code);
 

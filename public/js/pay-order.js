@@ -28,9 +28,9 @@ $(document).ready(function() {
         $('#change').html('Rp. 0');
         $('.btn-prosess').css("opacity", "0.5");
         $('#tunai').val(val);
-        $('#bill').html('Rp. '+total);
-
         $('#pay').html('Rp. '+DecimalAsString(val));
+        $('#bill').html('Rp. ' +DecimalAsString(total));
+
         if(parseInt(total) >= parseInt(val)){
             const rest_bill = parseInt(total) - parseInt(val)
             $('#bill').html('Rp. ' + DecimalAsString(rest_bill));
@@ -78,5 +78,27 @@ $(document).ready(function() {
             return false;
         }
     })
+    if ($('.alert-success').length){
+        const id = $('.btn-prosess').data('id-order');
+        const total = $('#total').val();
+        const tunai = $('#tunai').val();
+
+        swalWithBootstrapButtons.fire({
+            title: 'Pembayaran Berhasil',
+            text: 'Kembali: Rp. ' + DecimalAsString(tunai - total),
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-fw fa-print"></i> Cetak',
+            cancelButtonText: '<i class="fas fa-fw fa-arrow-left"></i> Back',
+            reverseButtons: true
+        }).then((result) => 
+        {
+            if (result.isConfirmed)
+                window.location.href = base_url + '/kasir/print/'+id+'?pay='+parseInt(tunai);
+            else
+                window.location.href = base_url + '/kasir';
+            $('.spinner').removeClass('d-none');
+        })
+    }
 })
 

@@ -83,11 +83,7 @@
                         <b>TAGIHAN</b>
                     </div>
                     <div class="col-5">
-                        @if(!empty($order) && $order->status == 4)
-                            <b>Rp. 0</b>
-                        @else
-                            <b>@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b>
-                        @endif
+                        <b>@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b>
                     </div>
                 </div>
                 <div class="row pt-2 pl-3">
@@ -95,7 +91,7 @@
                         <b>BAYAR TUNAI</b>
                     </div>
                     <div class="col-5">
-                        <b id="pay">Rp. 0</b>
+                        <b id="pay">@if(!empty($order->order_cash))Rp. {{number_format($order->order_cash)}} @else Rp. 0 @endif</b>
                     </div>
                 </div>
                 <hr class="mb-0" style="width:95%;height:2px;color:rgb(0, 0, 0);background-color:rgb(0, 0, 0)">
@@ -104,8 +100,12 @@
                         <b>SISA TAGIHAN</b>
                     </div>
                     <div class="col-5">
-                        @if(!empty($order) && $order->status == 4)
-                            <b>Rp. 0</b>
+                        @if(!empty($order->order_cash))
+                            @if($order->total_order >= $order->order_cash)
+                                <b id="bill">Rp. {{number_format($order->total_order - $order->order_cash)}}</b>
+                            @else
+                                <b id="bill">Rp. 0</b>
+                            @endif
                         @else
                             <b id="bill">@if(!empty($order))Rp. {{number_format($order->total_order)}}@endif</b>
                         @endif
@@ -116,7 +116,11 @@
                         <b>Kembali</b>
                     </div>
                     <div class="col-5">
-                        <b id="change">Rp. 0</b>
+                        @if($order->order_cash > $order->total_order)
+                            <b id="change">Rp. {{number_format($order->order_cash - $order->total_order)}}</b>
+                        @else
+                            <b id="change">Rp. 0</b>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -133,15 +137,17 @@
             
             <div class="" style="height: 73.2vh">
                 <div class="text-center p-2">
-                    <div class="alert alert-success alert-dismissible fade show @if(!empty($order) && $order->status == 2) d-none @endif" role="alert">
-                        <i class="fas fa-fw fa-check"></i> <b>Sudah Bayar</b>
-                    </div>
-                    <button class="btn btn-block" id="pay-pas" @if(!empty($order) && $order->status == 4) disabled @endif data-pay="@if(!empty($order)){{$order->total_order}}@endif" style="background-color: rgb(0, 0, 0); color:white"><b>UANG PAS</b></button>
+                    @if(!empty($order->order_cash) && $order->order_cash >= $order->total_order)
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-fw fa-check"></i> <b>Sudah Bayar</b>
+                        </div>
+                    @endif
+                    <button class="btn btn-block" id="pay-pas" @if(!empty($order->order_cash) && $order->order_cash > $order->total_order) disabled @endif data-pay="@if(!empty($order)){{$order->total_order}}@endif" style="background-color: rgb(0, 0, 0); color:white"><b>UANG PAS</b></button>
                 </div>
                 <div class="form-group text-center p-2">
-                    <input type="text" class="form-control numbering enter-pay" @if(!empty($order) && $order->status == 4) disabled @endif autofocus placeholder="Enter Bayar">
+                    <input type="text" class="form-control numbering enter-pay" @if(!empty($order->order_cash) && $order->order_cash > $order->total_order) disabled @endif autofocus placeholder="Enter Bayar">
                     <input type="hidden" id="total" value="@if(!empty($order)){{$order->total_order}}@endif">
-                    <input type="hidden" id="tunai" value="0">
+                    <input type="hidden" id="tunai" value="@if(!empty($order->order_cash)) {{$order->order_cash}} @else 0 @endif">
                 </div>
             </div>
             <div class="row m-0 btn-prosess" style="opacity:0.5" data-id-order="{{$order->id}}">

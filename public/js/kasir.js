@@ -328,6 +328,8 @@ $(document).ready(function() {
     $(document).on('click', '.btn-hapus', function (e) {
         if(confirm('Yakin ingin di hapus?'))
         {
+            $('#form-order').attr('action', base_url +'/kasir/store');
+            $('#update-order').html('');
             $('.not-product').removeClass('d-none');
             $('#append_order').html('');
             $("#order_id").val('').select2();

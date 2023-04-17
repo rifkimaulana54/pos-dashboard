@@ -144,7 +144,7 @@ class ProductController extends Controller
                 'category_id'         => !empty($request->category_id) ? $request->category_id : '',
                 'product_description' => !empty($request->product_description) ? $request->product_description : '',
                 'company_id'          => !empty(session('company')['id']) ? session('company')['id'] : 1,
-                'meta'                => !empty($request->meta) ? GlobalHelper::maybe_unserialize($request->meta) : array()
+                'meta'                => !empty($request->meta) ? $request->meta : array()
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
@@ -317,14 +317,17 @@ class ProductController extends Controller
                 'category_id'         => $request->category_id,
                 'product_description' => !empty($request->product_description) ? $request->product_description : '',
                 'company_id'          => !empty(session('company')['id']) ? session('company')['id'] : 1,
-                'meta'                => !empty($request->meta) ? GlobalHelper::maybe_unserialize($request->meta) : array(),
+                'meta'                => !empty($request->meta) ? $request->meta : array(),
                 'status'              => !empty($request->status) ? 1 : 2,
             ),
             'headers' => [ 'Authorization' => 'Bearer '.$user_token ]
         );
 
+        // dd($putParam);
+
         $userApi = ProductApi::updateData( $putParam );
         $dataDecode = json_decode($userApi);
+        // dd($dataDecode);
 
         if(!empty($dataDecode->code) && $dataDecode->code != 200)
         {

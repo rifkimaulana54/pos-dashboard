@@ -439,9 +439,9 @@ class RoleController extends Controller
                             // if(JPHelper::userCan($request,'update-users') && $role->id != 1)
                                 $role->update = 1;
 
-                            $protected_ids = [1,2,3,4,5];
+                            $protected_ids = [1,2];
 
-                            if(GlobalHelper::userCan($request,'delete-users') || GlobalHelper::userRole($request, 'admin') && !in_array($role->id,$protected_ids))
+                            if(GlobalHelper::userCan($request,'delete-users') && !in_array($role->id,$protected_ids))
                                 $role->delete = 1;
                         }
 
